@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GLN JOLO — Cơ cấu tổ chức & Hệ thống tính lương</title>
+<style>
+:root{ --bar:#0b1f17; --tab:#9fb8ab; --on:#ffffff; --accent:#2d8653;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bar:#08130e; } }
+:root[data-theme="dark"]{ --bar:#08130e; }
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ height:100%; }
+body{ display:flex; flex-direction:column; background:var(--bar); font-family:'Segoe UI',Arial,sans-serif; }
+nav{ display:flex; gap:4px; padding:8px 12px 0; background:var(--bar); flex-shrink:0; overflow-x:auto; }
+nav button{ border:0; background:transparent; color:var(--tab); font:600 14px 'Segoe UI',Arial,sans-serif; padding:10px 18px; border-radius:8px 8px 0 0; cursor:pointer; white-space:nowrap; }
+nav button[aria-selected="true"]{ background:#f9fafb; color:#1a4731; box-shadow:inset 0 3px 0 var(--accent); }
+nav button:hover:not([aria-selected="true"]){ color:var(--on); }
+.page{ flex:1; min-height:0; display:none; }
+.page.on{ display:block; }
+iframe{ width:100%; height:100%; border:0; display:block; background:#fff; }
+</style>
+</head>
+<body>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-p="p1">1 · Cơ cấu tổ chức &amp; luồng dữ liệu</button>
+  <button role="tab" aria-selected="false" data-p="p2">2 · Công thức tính lương theo vị trí</button>
+</nav>
+<div class="page on" id="p1"><iframe title="Cơ cấu tổ chức" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;vi&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+&lt;title&gt;GLN JOLO — Cơ cấu tổ chức &amp; Luồng dữ liệu tính lương&lt;/title&gt;
+&lt;style&gt;
+:root{
+  --page:#0f172a; --panel:#1e293b; --panel-2:rgba(255,255,255,0.03); --line:#334155; --line-2:#1e293b;
+  --text:#e2e8f0; --muted:#94a3b8; --dim:#64748b;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme=&quot;dark&quot;]){ --page:#eef2f7; --panel:#ffffff; --panel-2:#ffffff; --line:#cbd5e1; --line-2:#dbe3ec; --text:#0f172a; --muted:#475569; --dim:#64748b; }
+}
+:root[data-theme=&quot;dark&quot;]{ --page:#0f172a; --panel:#1e293b; --panel-2:rgba(255,255,255,0.03); --line:#334155; --line-2:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --dim:#64748b; }
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:&#x27;Segoe UI&#x27;,Arial,sans-serif; background:var(--page); color:var(--text); min-height:100vh; }
+
+.header{ background:linear-gradient(135deg,#1e40af,#0369a1); padding:24px 32px; text-align:center; border-bottom:2px solid #3b82f6; }
+.header h1{ font-size:22px; font-weight:700; color:#fff; letter-spacing:.5px; }
+.header p{ font-size:13px; color:#bfdbfe; margin-top:6px; }
+
+.legend{ display:flex; flex-wrap:wrap; gap:12px 18px; padding:14px 32px; background:var(--panel); border-bottom:1px solid var(--line); }
+.legend-item{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
+.legend-dot{ width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+.legend-sep{ width:1px; background:var(--line); align-self:stretch; }
+
+.canvas{ padding:24px 32px 40px; overflow-x:auto; }
+.flow-container{ min-width:1180px; }
+.flow-layers{ display:flex; flex-direction:column; gap:8px; }
+
+.section{ background:var(--panel-2); border:1px solid var(--line-2); border-radius:14px; padding:18px 20px; }
+.section-title{ font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+.group-label{ font-size:10px; margin:4px 0 8px; letter-spacing:1px; }
+.arrow-down{ text-align:center; padding:6px 0; font-size:20px; color:#475569; }
+.arrow-down span{ font-size:12px; color:var(--dim); }
+
+.node-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.node{ border-radius:10px; padding:12px 14px 14px; font-size:11.5px; font-weight:600; text-align:center; position:relative; cursor:pointer;
+  transition:transform .2s, box-shadow .2s; min-width:130px; max-width:165px; line-height:1.4; border:2px solid transparent; }
+.node:hover{ transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,.45); }
+.node .sub{ font-size:10px; font-weight:400; margin-top:4px; opacity:.88; }
+.node .count{ font-size:9px; background:rgba(255,255,255,.2); border-radius:10px; padding:1px 6px; display:inline-block; margin-top:4px; }
+.node.active{ outline:3px solid #fbbf24; outline-offset:2px; }
+
+.node-source{ background:linear-gradient(135deg,#064e3b,#065f46); border-color:#10b981; color:#a7f3d0; }
+.node-input{ background:linear-gradient(135deg,#1e3a5f,#1d4ed8); border-color:#3b82f6; color:#bfdbfe; }
+.node-calc{ background:linear-gradient(135deg,#4c1d95,#6d28d9); border-color:#8b5cf6; color:#ddd6fe; }
+.node-collect{ background:linear-gradient(135deg,#7c2d12,#9a3412); border-color:#f97316; color:#fed7aa; }
+.node-output{ background:linear-gradient(135deg,#134e4a,#0f766e); border-color:#14b8a6; color:#99f6e4; }
+.node-final{ background:linear-gradient(135deg,#1e1b4b,#312e81); border-color:#6366f1; color:#e0e7ff; }
+.node-support{ background:linear-gradient(135deg,#4a1942,#7e1d6c); border-color:#ec4899; color:#fbcfe8; }
+.node-kpi{ background:linear-gradient(135deg,#78350f,#b45309); border-color:#f59e0b; color:#fde68a; }
+.node-org{ background:linear-gradient(135deg,#0c4a6e,#075985); border-color:#38bdf8; color:#e0f2fe; }
+
+/* Trạng thái dữ liệu */
+.st{ position:absolute; top:-7px; right:-7px; font-size:9px; font-weight:700; border-radius:8px; padding:1px 5px; line-height:1.3; border:1px solid; }
+.st-ok{ background:#052e16; color:#86efac; border-color:#22c55e; }
+.st-gd{ background:#451a03; color:#fcd34d; border-color:#f59e0b; }
+.st-empty{ background:#1f2937; color:#d1d5db; border-color:#9ca3af; border-style:dashed; }
+.node.empty{ background:transparent; border-style:dashed; border-color:#64748b; color:var(--muted); }
+
+.highlight-box{ border:2px dashed #f59e0b; border-radius:12px; padding:14px; background:rgba(245,158,11,.05); margin-top:12px; }
+.hl-title{ font-size:10px; color:#f59e0b; font-weight:700; margin-bottom:10px; letter-spacing:1px; }
+
+/* Cây tổ chức */
+.org-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.org-col{ border:1px solid var(--line); border-radius:12px; padding:14px; }
+.org-col h3{ font-size:12px; color:#38bdf8; margin-bottom:4px; }
+.org-col .meta{ font-size:10.5px; color:var(--muted); margin-bottom:12px; line-height:1.5; }
+.khoi{ border-left:3px solid #38bdf8; padding:6px 0 6px 12px; margin-bottom:10px; }
+.khoi-name{ font-size:11px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.dept{ font-size:10.5px; color:var(--muted); margin:6px 0 4px; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.chip{ font-size:10.5px; border:1px solid var(--line); border-radius:999px; padding:3px 9px; color:var(--text); background:rgba(56,189,248,.08); cursor:pointer; position:relative; }
+.chip em{ font-style:normal; color:var(--dim); font-size:9.5px; margin-left:4px; }
+.chip.gd{ border-color:#f59e0b; }
+.chip.empty{ border-style:dashed; background:transparent; color:var(--muted); }
+
+.branch-table{ width:100%; border-collapse:collapse; font-size:11px; margin-top:4px; }
+.branch-table th{ text-align:left; color:var(--muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--line); font-size:10.5px; }
+.branch-table td{ padding:6px 8px; border-bottom:1px solid var(--line-2); vertical-align:top; color:var(--text); }
+.tag{ display:inline-block; font-size:9.5px; font-weight:700; border-radius:6px; padding:0 5px; border:1px solid; }
+.tag.ok{ color:#16a34a; border-color:#22c55e; }
+.tag.gd{ color:#d97706; border-color:#f59e0b; }
+.tag.empty{ color:var(--muted); border-color:#9ca3af; border-style:dashed; }
+
+.stats{ margin-top:24px; display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+.stat{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:center; }
+.stat .v{ font-size:24px; font-weight:700; }
+.stat .l{ font-size:11px; color:var(--muted); margin-top:4px; line-height:1.4; }
+
+.issues{ margin-top:20px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; }
+.issues h2{ font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#f87171; margin-bottom:12px; }
+.issues table{ width:100%; border-collapse:collapse; font-size:11.5px; }
+.issues th{ text-align:left; color:var(--muted); font-weight:600; padding:7px 8px; border-bottom:1px solid var(--line); }
+.issues td{ padding:7px 8px; border-bottom:1px solid var(--line-2); vertical-align:top; line-height:1.5; }
+
+.tooltip{ position:fixed; background:#1e293b; border:1px solid #475569; border-radius:8px; padding:10px 14px; font-size:11px; color:#e2e8f0;
+  pointer-events:none; z-index:1000; max-width:320px; line-height:1.6; box-shadow:0 4px 20px rgba(0,0,0,.6); display:none; }
+.tooltip strong{ color:#60a5fa; display:block; margin-bottom:4px; }
+.tooltip .src{ display:block; margin-top:6px; padding-top:6px; border-top:1px dashed #475569; color:#94a3b8; font-size:10px; }
+.tooltip .warn{ color:#fcd34d; }
+.footer{ text-align:center; font-size:11px; color:var(--dim); padding:18px 32px 28px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;header&quot;&gt;
+  &lt;h1&gt;🔄 CƠ CẤU TỔ CHỨC &amp; LUỒNG DỮ LIỆU TÍNH LƯƠNG&lt;/h1&gt;
+  &lt;p&gt;GLN JOLO — Công ty TNHH Gia Linh Nguyên (Hà Nội) &amp;amp; khối JOLO HCM · Tổng hợp từ 7 file mẫu bảng lương · Cơ cấu lương năm 2026&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;legend&quot;&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#38bdf8&quot;&gt;&lt;/div&gt; Cơ cấu tổ chức&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#10b981&quot;&gt;&lt;/div&gt; Nguồn dữ liệu đầu vào&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#3b82f6&quot;&gt;&lt;/div&gt; Sheet dữ liệu trung gian&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#8b5cf6&quot;&gt;&lt;/div&gt; Bảng tính lương theo vị trí&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#f59e0b&quot;&gt;&lt;/div&gt; KPI / Chỉ tiêu&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#ec4899&quot;&gt;&lt;/div&gt; Phụ cấp &amp; Thưởng&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#f97316&quot;&gt;&lt;/div&gt; Khấu trừ &amp; Thuế&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;div class=&quot;legend-dot&quot; style=&quot;background:#14b8a6&quot;&gt;&lt;/div&gt; Đầu ra&lt;/div&gt;
+  &lt;div class=&quot;legend-sep&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;span class=&quot;tag ok&quot;&gt;✔&lt;/span&gt; Có dữ liệu trong file&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;span class=&quot;tag gd&quot;&gt;GĐ&lt;/span&gt; Giả định / suy luận&lt;/div&gt;
+  &lt;div class=&quot;legend-item&quot;&gt;&lt;span class=&quot;tag empty&quot;&gt;?&lt;/span&gt; Trống — cần bổ sung&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;canvas&quot;&gt;
+&lt;div class=&quot;flow-container&quot;&gt;
+&lt;div class=&quot;flow-layers&quot;&gt;
+
+&lt;!-- ═════ TẦNG 0: CƠ CẤU TỔ CHỨC ═════ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#38bdf8&quot;&gt;▶ TẦNG 0 — CƠ CẤU TỔ CHỨC (PHÁP NHÂN → KHỐI → PHÒNG BAN → VỊ TRÍ)&lt;/div&gt;
+  &lt;div class=&quot;org-wrap&quot;&gt;
+
+    &lt;div class=&quot;org-col&quot;&gt;
+      &lt;h3&gt;🏢 GLN — Hà Nội&lt;/h3&gt;
+      &lt;div class=&quot;meta&quot;&gt;Công ty TNHH Gia Linh Nguyên · Tầng 1 &amp; 12 tòa Handico, Phạm Hùng, Hà Nội · Mã NV dạng GLN_xxxx (152 mã trong &quot;DS nhân viên&quot;)&lt;br&gt;Nguồn: Mẫu bảng lương tổng hợp, Mẫu bảng lương TA.Tutor&lt;/div&gt;
+
+      &lt;div class=&quot;khoi&quot;&gt;
+        &lt;div class=&quot;khoi-name&quot;&gt;Khối VP&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Phòng TCKT&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;&lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Nhân viên KT TH&lt;/strong&gt;Nhóm lương: KE TOAN FT · Full time · HĐ BHXH&lt;br&gt;Lương &amp; PC theo ngày công + thưởng khác&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 1), 04. Bảng lương (tax)&lt;/span&gt;&quot;&gt;Nhân viên KT TH&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Phòng HCNS&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;&lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Chuyên viên NS TH&lt;/strong&gt;Nhóm lương: HR FT · Full time&lt;br&gt;Lương &amp; PC theo công + KPI theo bảng KPT + thưởng tuyển dụng&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 2), 01. Bảng phép năm&lt;/span&gt;&quot;&gt;Chuyên viên NS TH&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Phòng PRM (Marketing)&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Nhân viên PRM — FT&lt;/strong&gt;Nhóm lương: MARKETING FT&lt;br&gt;Lương theo công + KPI + OKRs + thưởng khác&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 3)&lt;/span&gt;&quot;&gt;Nhân viên PRM&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Nhân viên PRM — PT&lt;/strong&gt;Nhóm lương: MARKETING PT&lt;br&gt;30.000đ/giờ × giờ thực tế × %KPI&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 4)&lt;/span&gt;&quot;&gt;Nhân viên PRM&lt;em&gt;PT&lt;/em&gt;&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;khoi&quot;&gt;
+        &lt;div class=&quot;khoi-name&quot;&gt;Khối KD và VH (Kinh doanh &amp; Vận hành)&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;KD Khóa học&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Trưởng nhóm tư vấn tuyển sinh chung&lt;/strong&gt;Nhóm lương: TRƯỞNG PHÒNG TVTS · mã chức vụ AM FT&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 5), 01. Bảng phép năm&lt;/span&gt;&quot;&gt;Trưởng phòng TVTS (AM)&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;AO FT&lt;/strong&gt;Nhóm lương: TƯ VẤN FT&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 6)&lt;/span&gt;&quot;&gt;Tư vấn AO&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;AO PT&lt;/strong&gt;Nhóm lương: TƯ VẤN PT · 104 giờ chuẩn&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 7)&lt;/span&gt;&quot;&gt;Tư vấn AO&lt;em&gt;PT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;CTV vận hành / sale&lt;/strong&gt;Hình thức CTV · Hoa hồng % theo doanh thu vận hành NET&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 10)&lt;/span&gt;&quot;&gt;CTV vận hành / Sale&lt;em&gt;CTV&lt;/em&gt;&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;khoi&quot;&gt;
+        &lt;div class=&quot;khoi-name&quot;&gt;Khối Học vụ&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Học vụ — giáo viên Full time&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Giáo viên nước ngoài FT&lt;/strong&gt;Nhóm lương: GIÁO VIÊN FT 1 · Nhận NET (gross-up)&lt;br&gt;Định mức giờ dạy + giờ admin theo HĐ&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 8), TNCN NET, 02. BCC&lt;/span&gt;&quot;&gt;GV nước ngoài&lt;em&gt;FT · NET&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Giáo viên Việt Nam FT&lt;/strong&gt;Nhóm lương: GIÁO VIÊN FT 2 · Gross&lt;br&gt;Định mức 100 giờ/tháng, không có admin&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › Cơ cấu lương (dòng 9), 03. OT list&lt;/span&gt;&quot;&gt;GV Việt Nam&lt;em&gt;FT · Gross&lt;/em&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Học vụ — trợ giảng / gia sư (TA.Tutor)&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;Tutor (Gia sư)&lt;/strong&gt;CTV · rate theo chương trình&lt;br&gt;File mẫu: 45 người ở Tràng Thi, 112 người ở Phạm Hùng&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương TA.Tutor › Bảng công&lt;/span&gt;&quot;&gt;Tutor&lt;em&gt;CTV&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;TA (Trợ giảng)&lt;/strong&gt;CTV · Observe / Thử việc / Chính thức&lt;br&gt;File mẫu: 5 người ở Tràng Thi, 50 người ở Phạm Hùng&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương TA.Tutor › Bảng công&lt;/span&gt;&quot;&gt;TA&lt;em&gt;CTV&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip gd&quot; data-tip=&quot;&lt;strong&gt;Các chức danh ghép: TA&amp;amp;TT, TA SC, TT, CSO &amp;amp; Tutor&lt;/strong&gt;Xuất hiện ở cột Chức vụ trong bảng công TA.Tutor (Phạm Hùng, Tràng Thi).&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Nghĩa của TT / SC / CSO chưa được giải thích trong file → cần xác nhận.&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương TA.Tutor › Bảng công&lt;/span&gt;&quot;&gt;TA&amp;amp;TT · TA SC · TT · CSO&amp;amp;Tutor&lt;em&gt;GĐ&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip gd&quot; data-tip=&quot;&lt;strong&gt;GVNK (hát, vẽ)&lt;/strong&gt;Xuất hiện 7 dòng ở Phạm Hùng (GVNK, GVNK hát, GVNK vẽ). Suy luận: giáo viên năng khiếu.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Chưa có cơ cấu lương riêng trong sheet Cơ cấu lương.&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Nguồn: TA.Tutor › Bảng công; PT/TA › sharing&lt;/span&gt;&quot;&gt;GVNK (năng khiếu)&lt;em&gt;GĐ&lt;/em&gt;&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;org-col&quot;&gt;
+      &lt;h3&gt;🏢 JOLO HCM&lt;/h3&gt;
+      &lt;div class=&quot;meta&quot;&gt;Mã NV dạng JOLO HCM_xxx · Ký bảng lương &quot;Ho Chi Minh&quot; · &lt;span class=&quot;tag gd&quot;&gt;GĐ&lt;/span&gt; Chưa rõ là chi nhánh của GLN hay pháp nhân riêng&lt;br&gt;Nguồn: Mẫu bảng lương chính, Mẫu bảng lương PT Teacher&lt;/div&gt;
+
+      &lt;div class=&quot;khoi&quot;&gt;
+        &lt;div class=&quot;khoi-name&quot;&gt;Khối KD&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Kinh doanh&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;AM&lt;/strong&gt;Lương CB + Thưởng KPI theo công (cột K) + phụ cấp ăn ca&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương chính › 04. Bảng lương (tax)&lt;/span&gt;&quot;&gt;AM&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;AO FT&lt;/strong&gt;Cùng công thức với AO FT Hà Nội (mốc KPI doanh số, PC theo % DS)&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương chính › 04&lt;/span&gt;&quot;&gt;AO&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;MKT FT&lt;/strong&gt;Lương theo công + KPI chấm điểm&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương chính › 04&lt;/span&gt;&quot;&gt;MKT&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;MKT PT&lt;/strong&gt;Lương theo giờ: 30.000đ/giờ trong file mẫu&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương chính › 04&lt;/span&gt;&quot;&gt;MKT&lt;em&gt;PT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip gd&quot; data-tip=&quot;&lt;strong&gt;TTS Văn phòng&lt;/strong&gt;Lương theo giờ: 25.500đ/giờ trong file mẫu, HĐ XĐTH.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Không có dòng TTS trong sheet Cơ cấu lương → chưa có quy định chính thức.&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương chính › 01, 04&lt;/span&gt;&quot;&gt;TTS Văn phòng&lt;em&gt;PT&lt;/em&gt;&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;khoi&quot;&gt;
+        &lt;div class=&quot;khoi-name&quot;&gt;Khối Học vụ&lt;/div&gt;
+        &lt;div class=&quot;dept&quot;&gt;Học vụ&lt;/div&gt;
+        &lt;div class=&quot;chips&quot;&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;English teacher FT&lt;/strong&gt;Lương CB 6.000.000 + Thưởng KPI theo công 10.000.000 (dòng mẫu)&lt;br&gt;Lương = (LCB + PC + KPI) × Công TT / Công chuẩn&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương chính › 04&lt;/span&gt;&quot;&gt;English teacher&lt;em&gt;FT&lt;/em&gt;&lt;/span&gt;
+          &lt;span class=&quot;chip&quot; data-tip=&quot;&lt;strong&gt;PT Teacher (GV nước ngoài part-time)&lt;/strong&gt;CTV · Nhận NET · Rate/giờ theo chương trình × cơ sở&lt;br&gt;File mẫu: 25 mã GV (Q3: 14 · Q9: 13 · TC: 23 — một GV dạy nhiều cơ sở)&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương PT Teacher › Bảng công, Cơ cấu bảng lương&lt;/span&gt;&quot;&gt;PT Teacher&lt;em&gt;CTV · NET&lt;/em&gt;&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;h3 style=&quot;margin-top:14px&quot;&gt;📍 Cơ sở / mã chi nhánh&lt;/h3&gt;
+      &lt;table class=&quot;branch-table&quot;&gt;
+        &lt;tr&gt;&lt;th&gt;Mã trong bảng lương&lt;/th&gt;&lt;th&gt;Tên trong EBM (Class Analysis)&lt;/th&gt;&lt;th&gt;Khu vực&lt;/th&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;PH&lt;/td&gt;&lt;td&gt;Pham Hung&lt;/td&gt;&lt;td&gt;HN &lt;span class=&quot;tag ok&quot;&gt;✔&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;TT&lt;/td&gt;&lt;td&gt;Trang Thi&lt;/td&gt;&lt;td&gt;HN &lt;span class=&quot;tag ok&quot;&gt;✔&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;TK&lt;/td&gt;&lt;td&gt;Thuy Khue&lt;/td&gt;&lt;td&gt;HN &lt;span class=&quot;tag gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;NTĐ&lt;/td&gt;&lt;td&gt;Nguyen Thi Dinh&lt;/td&gt;&lt;td&gt;HN &lt;span class=&quot;tag gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;VHSC&lt;/td&gt;&lt;td&gt;VHSC&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;TC&lt;/td&gt;&lt;td&gt;Tan Cang&lt;/td&gt;&lt;td&gt;HCM &lt;span class=&quot;tag ok&quot;&gt;✔&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Q3&lt;/td&gt;&lt;td&gt;Vo Van Tan&lt;/td&gt;&lt;td&gt;HCM &lt;span class=&quot;tag gd&quot;&gt;GĐ ghép mã&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Q9&lt;/td&gt;&lt;td&gt;VGP / VGP2&lt;/td&gt;&lt;td&gt;HCM &lt;span class=&quot;tag gd&quot;&gt;GĐ ghép mã&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;Tran Dai Nghia; Study Abroad&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+      &lt;/table&gt;
+      &lt;div class=&quot;meta&quot; style=&quot;margin-top:8px&quot;&gt;GĐ: các cặp mã ↔ tên chưa có bảng đối chiếu chính thức. &quot;TK&quot;, &quot;NTĐ&quot;, &quot;VHSC&quot; xuất hiện trong giờ dạy GVNN FT ở 02. BCC. Danh sách tên đầy đủ lấy từ dòng bộ lọc chi nhánh của ClassAnalysis_20260928.&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;arrow-down&quot;&gt;⬇ ⬇ ⬇&lt;/div&gt;
+
+&lt;!-- ═════ TẦNG 1: NGUỒN DỮ LIỆU ═════ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#10b981&quot;&gt;▶ TẦNG 1 — NGUỒN DỮ LIỆU ĐẦU VÀO&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot;&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;EBM (ebm.jolo.edu.vn)&lt;/strong&gt;Hệ thống quản lý lớp: tạo lớp, phân GV, lịch học, sĩ số, học viên. Là nguồn giờ dạy (cột &#x27;EBM&#x27;) đối chiếu với &#x27;Bản cứng&#x27;; link EBM được dán làm bằng chứng cho thưởng lớp nhóm, HV điểm cao, tái tục.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Bảng công PT, 02. BCC, HV IELTS điểm cao, re-enroll list&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🖥 EBM&lt;div class=&quot;sub&quot;&gt;Lớp · GV · sĩ số · giờ dạy&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Class Analysis (xuất từ EBM)&lt;/strong&gt;47 lớp, kỳ 01/09–28/12/2026. Cột: Kind of Course, Class Name, Duration, Tuition Fee, Start/End, Schedule, Total Amount Collected, No. of Students, Avg Amount/Hour.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Không có cột giáo viên / cơ sở / hình thức → chưa nối trực tiếp được vào bảng lương.&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Nguồn: ClassAnalysis_20260928&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📊 Class Analysis&lt;div class=&quot;sub&quot;&gt;Doanh thu &amp; sĩ số lớp&lt;/div&gt;&lt;div class=&quot;count&quot;&gt;47 lớp · 15 loại khóa&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Bản cứng giờ dạy&lt;/strong&gt;Bảng giờ GV tự khai / ký, đặt cạnh cột EBM để đối chiếu trước khi tính lương.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Bảng công PT (cột R &#x27;EBM&#x27;, S &#x27;Bản cứng&#x27;), 02. BCC&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📝 Bản cứng&lt;div class=&quot;sub&quot;&gt;Đối chiếu giờ EBM&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Đăng ký ca &amp; chấm công&lt;/strong&gt;Link Google Sheet &#x27;Mẫu link đăng ký ca đầu tháng khối VP/KD/VH&#x27;. Ký hiệu: F, 1/2F, P, 1/2P, PH, UP.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › 02. BCC&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🕐 Đăng ký ca / Chấm công&lt;div class=&quot;sub&quot;&gt;Công thực tế, phép, lễ&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Phiếu đề nghị chấm công bổ sung&lt;/strong&gt;Giờ làm thêm theo ngày thường / ngày nghỉ (workshop, sự kiện…), giờ vượt định mức của GV FT.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › 03. OT list&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;⏱ Đề nghị OT&lt;div class=&quot;sub&quot;&gt;Ngày thường / nghỉ / lễ&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Bảng đánh giá KPI &amp; OKRs&lt;/strong&gt;Mỗi nhân viên một link Google Sheet (cột &#x27;Link đánh giá KPI &amp; OKRs&#x27;); % KPI nhập tay vào bảng lương.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Cách chấm điểm trong các sheet này chưa có trong bộ file.&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Nguồn: 04. Bảng lương (tax) cột AA, AC&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-gd&quot;&gt;GĐ&lt;/span&gt;🎯 KPI &amp; OKRs&lt;div class=&quot;sub&quot;&gt;% hoàn thành (nhập tay)&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Doanh số từ Kế toán&lt;/strong&gt;&#x27;Số liệu kế toán gửi hàng tháng&#x27; — target và doanh số thực tế từng AO / TP. Doanh số BC/IDP, doanh thu lớp kết thúc cũng nhập tay.&lt;span class=&#x27;src&#x27;&gt;Nguồn: 04. Bảng lương (tax) cột Y, Z&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🏦 Doanh số (TCKT)&lt;div class=&quot;sub&quot;&gt;Target &amp; thực đạt&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;HĐ / thỏa thuận lương&lt;/strong&gt;Rate theo GV (chương trình × cơ sở), định mức giờ GV FT, mức Round Trip / Severance, mức phụ cấp từng NV.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Không có file HĐ gốc trong bộ dữ liệu — chỉ thấy giá trị đã nhập vào bảng lương.&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-empty&quot;&gt;?&lt;/span&gt;📄 Hợp đồng / Offer&lt;div class=&quot;sub&quot;&gt;Rate, định mức, SA/RT&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-source&quot; data-tip=&quot;&lt;strong&gt;Danh sách HV điểm cao &amp; tái tục&lt;/strong&gt;Theo dõi theo năm-tháng-chi nhánh-GV-AO-HV-điểm-link EBM; danh sách tái tục theo GV.&lt;span class=&#x27;src&#x27;&gt;Nguồn: PT/TA › HV IELTS điểm cao, re-enroll list, Re-enroll&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🏅 HVĐC &amp; Tái tục&lt;div class=&quot;sub&quot;&gt;Điểm IELTS, HV học tiếp&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;arrow-down&quot;&gt;⬇ ⬇ ⬇&lt;/div&gt;
+
+&lt;!-- ═════ TẦNG 2: SHEET TRUNG GIAN ═════ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#3b82f6&quot;&gt;▶ TẦNG 2 — SHEET DỮ LIỆU TRUNG GIAN&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot;&gt;
+    &lt;div class=&quot;node node-input&quot; style=&quot;min-width:190px;max-width:210px&quot; data-tip=&quot;&lt;strong&gt;01. Bảng phép năm&lt;/strong&gt;Đóng vai trò master nhân viên: Mã NV, Chi nhánh, Phòng ban, Chức vụ, Hình thức (FT / PT / TTS FT / TTS PT), Ngày vào, Loại HĐ (BHXH, XĐTH, &amp;lt;3T, CTV…), phép năm, phép thâm niên (5 năm + 1 ngày). Bảng lương dùng VLOOKUP theo Mã NV.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp, Mẫu chính&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📑 01. Bảng phép năm&lt;div class=&quot;sub&quot;&gt;Master NV + phép&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-input&quot; style=&quot;min-width:190px;max-width:210px&quot; data-tip=&quot;&lt;strong&gt;02. BCC — Bảng chấm công&lt;/strong&gt;Công chuẩn tháng, công thực tế (F + P + PH), nghỉ không lương. Phần dưới: bảng quy đổi giờ cho từng GV FT (giờ dạy theo cơ sở, admin, PT, lễ/phép → ngày công quy đổi &amp; giờ OT), bảng thưởng lớp nhóm.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Có 115 công thức đang lỗi #REF!&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📑 02. BCC&lt;div class=&quot;sub&quot;&gt;Công · giờ quy đổi GV FT&lt;/div&gt;&lt;div class=&quot;count&quot; style=&quot;background:rgba(239,68,68,.35)&quot;&gt;⚠ 115 ô #REF!&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-input&quot; style=&quot;min-width:190px;max-width:210px&quot; data-tip=&quot;&lt;strong&gt;03. OT list&lt;/strong&gt;Giờ OT theo khối (VP, KD, VH, Học vụ). GV FT: giờ ngoài định mức × rate OT (300.000 GVNN; 120.000 GVVN trong file mẫu).&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📑 03. OT list&lt;div class=&quot;sub&quot;&gt;Giờ OT &amp; rate&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-input&quot; style=&quot;min-width:190px;max-width:210px&quot; data-tip=&quot;&lt;strong&gt;Bảng công PT Teacher&lt;/strong&gt;Chia theo cơ sở (Quận 3, Quận 9, Tân Cảng). Mỗi GV: 5 rate theo chương trình, giờ thực tế theo chương trình, EBM vs Bản cứng, phỏng vấn, mocktest, tái tục, cộng/trừ → Tổng thu nhập trước GROSS.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương PT Teacher&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📑 Bảng công PT&lt;div class=&quot;sub&quot;&gt;Q3 · Q9 · Tân Cảng&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-input&quot; style=&quot;min-width:190px;max-width:210px&quot; data-tip=&quot;&lt;strong&gt;Bảng công TA / Tutor&lt;/strong&gt;Chia theo cơ sở (Tràng Thi, Phạm Hùng). TA: giờ Observe / Thử việc / Chính thức. Tutor: giờ theo 4 nhóm chương trình + Offer riêng; EBM tutor vs Bản cứng.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Mẫu bảng lương TA.Tutor&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📑 Bảng công TA/Tutor&lt;div class=&quot;sub&quot;&gt;Tràng Thi · Phạm Hùng&lt;/div&gt;&lt;div class=&quot;count&quot;&gt;217 người&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-input&quot; style=&quot;min-width:190px;max-width:210px&quot; data-tip=&quot;&lt;strong&gt;TNCN NET / Gross up&lt;/strong&gt;Quy đổi lương NET của GV nước ngoài sang Gross: thu nhập, thuê nhà, OT miễn thuế, GTGC, BH bắt buộc, thuế TNCN → kiểm tra Net Pay = Thực nhận.&lt;span class=&#x27;src&#x27;&gt;Nguồn: Tổng hợp › TNCN NET; PT › Gross up Net Sal&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📑 TNCN NET&lt;div class=&quot;sub&quot;&gt;Gross-up GV NET&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;arrow-down&quot;&gt;⬇ ⬇ ⬇ &lt;span&gt;Dữ liệu phân nhánh xuống bảng lương từng nhóm vị trí&lt;/span&gt;&lt;/div&gt;
+
+&lt;!-- ═════ TẦNG 3: BẢNG TÍNH LƯƠNG THEO VỊ TRÍ ═════ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#8b5cf6&quot;&gt;▶ TẦNG 3 — BẢNG TÍNH LƯƠNG THEO NHÓM VỊ TRÍ&lt;/div&gt;
+
+  &lt;div class=&quot;group-label&quot; style=&quot;color:#a78bfa&quot;&gt;● KHỐI VĂN PHÒNG&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot; style=&quot;margin-bottom:14px&quot;&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;KE TOAN FT&lt;/strong&gt;Lương &amp; PC theo ngày công thực tế + thưởng khác.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 1&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🧾 Kế toán FT&lt;div class=&quot;sub&quot;&gt;Theo ngày công&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;HR FT&lt;/strong&gt;Lương &amp; PC theo công + KPI (bảng KPT) + thưởng tuyển dụng. Dòng mẫu đang thử việc tính 85% lương CB.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 2; 04 dòng HR&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;👥 HR FT&lt;div class=&quot;sub&quot;&gt;Công + KPI + tuyển dụng&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;MARKETING FT&lt;/strong&gt;Lương theo công + KPI theo bảng KPI + OKRs theo bảng OKRs + thưởng khác.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 3&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📣 Marketing FT&lt;div class=&quot;sub&quot;&gt;Công + KPI + OKRs&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;MARKETING PT&lt;/strong&gt;30.000đ/giờ × giờ thực tế × %KPI (KPI đã gộp trong lương) + OKRs.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 4&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📣 Marketing PT&lt;div class=&quot;sub&quot;&gt;30k/giờ × %KPI&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc empty&quot; data-tip=&quot;&lt;strong&gt;TTS Văn phòng&lt;/strong&gt;Chỉ thấy 1 dòng mẫu ở JOLO HCM: 25.500đ/giờ.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Chưa có quy định trong Cơ cấu lương.&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-empty&quot;&gt;?&lt;/span&gt;🎓 TTS&lt;div class=&quot;sub&quot;&gt;Theo giờ&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;group-label&quot; style=&quot;color:#a78bfa&quot;&gt;● KHỐI KINH DOANH &amp; VẬN HÀNH&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot; style=&quot;margin-bottom:14px&quot;&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;TRƯỞNG PHÒNG TVTS&lt;/strong&gt;Lương &amp; PC theo công + KPI + HH 3% DS Net + thưởng kết thúc lớp 1% + thưởng nhóm đạt target 1% + thưởng NV quản lý 1% + PC đào tạo + HVĐC + BC/IDP.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 5&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🧭 TP TVTS&lt;div class=&quot;sub&quot;&gt;Công + KPI + 4 loại HH&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;TƯ VẤN FT (AO FT)&lt;/strong&gt;Lương theo công + PC 1.400.000 theo % DS + KPI theo mốc DS × %KPI + HH 3% + KT lớp 1% + HVĐC + BC/IDP.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 6&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;💼 AO FT&lt;div class=&quot;sub&quot;&gt;Mốc DS × %KPI&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;TƯ VẤN PT (AO PT)&lt;/strong&gt;2.000.000 / 104 giờ chuẩn × giờ thực tế + PC theo giờ + KPI mốc DS + HH 3% …&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 7&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;💼 AO PT&lt;div class=&quot;sub&quot;&gt;104 giờ chuẩn&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;CTV VẬN HÀNH / SALE&lt;/strong&gt;HH = tỉ lệ % × (Doanh thu vận hành NET − Chi phí lương Gross GV/Tutor).&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Tỉ lệ % chưa ghi trong cơ cấu; dòng mẫu nhập &#x27;1% × 500.000.000&#x27;.&lt;/span&gt;&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 10&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-gd&quot;&gt;GĐ&lt;/span&gt;🤝 CTV vận hành&lt;div class=&quot;sub&quot;&gt;% × (DT NET − lương GV)&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;group-label&quot; style=&quot;color:#a78bfa&quot;&gt;● KHỐI HỌC VỤ&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot;&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;GV NƯỚC NGOÀI FT (NET)&lt;/strong&gt;Lương + KPI cố định theo giờ tiêu chuẩn HĐ, tính theo ngày công quy đổi; OT 300k/giờ; HVĐC; PT; Mocktest; Round Trip; Severance.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 8; TNCN NET; 02. BCC&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🌏 GVNN FT&lt;div class=&quot;sub&quot;&gt;Định mức giờ + NET&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;GV VIỆT NAM FT (Gross)&lt;/strong&gt;Lương + KPI theo giờ tiêu chuẩn (100h); thưởng lớp nhóm; PT 25k; OT 120k/giờ trong file mẫu.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương dòng 9; 03. OT list&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🇻🇳 GVVN FT&lt;div class=&quot;sub&quot;&gt;100h + lớp nhóm&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;PT TEACHER (NET)&lt;/strong&gt;Σ giờ × rate (chương trình × cơ sở × sĩ số) + PV + Mocktest + tái tục + HVĐC.&lt;span class=&#x27;src&#x27;&gt;Mẫu bảng lương PT Teacher&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;⏳ PT Teacher&lt;div class=&quot;sub&quot;&gt;Rate/giờ đa chiều&lt;/div&gt;&lt;div class=&quot;count&quot;&gt;25 mã GV&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;TUTOR&lt;/strong&gt;Σ giờ × rate theo chương trình (GE+B, Giao tiếp B+, IELTS 4.5–5.5, IELTS 6+, offer riêng) + PV 25k/PT.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương TA.Tutor dòng 1; Bảng công&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📘 Tutor&lt;div class=&quot;sub&quot;&gt;Rate theo chương trình&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc&quot; data-tip=&quot;&lt;strong&gt;TA&lt;/strong&gt;12 giờ Observe không lương → 30 giờ tiếp 30k/giờ → sau đó 35k/giờ.&lt;span class=&#x27;src&#x27;&gt;Cơ cấu lương TA.Tutor dòng 2&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🙋 TA&lt;div class=&quot;sub&quot;&gt;Observe → TV → CT&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-calc empty&quot; data-tip=&quot;&lt;strong&gt;GVNK&lt;/strong&gt;Có tên trong bảng công TA.Tutor và bảng sharing, nhưng không có công thức riêng.&lt;span class=&#x27;src&#x27;&gt;Cần bổ sung&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-empty&quot;&gt;?&lt;/span&gt;🎨 GVNK&lt;div class=&quot;sub&quot;&gt;Chưa có cơ cấu&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;highlight-box&quot;&gt;
+    &lt;div class=&quot;hl-title&quot;&gt;⚡ CẤU PHẦN CHUNG CỦA LƯƠNG KHỐI VP / KD (sheet 04. Bảng lương tax)&lt;/div&gt;
+    &lt;div class=&quot;node-row&quot;&gt;
+      &lt;div class=&quot;node node-kpi&quot; style=&quot;font-size:10px&quot; data-tip=&quot;&lt;strong&gt;Lương thực tế&lt;/strong&gt;Nếu HĐ lương cố định theo công: (LCB + PC + Thưởng KPI theo công) × Công TT / Công chuẩn + KPI DS × %KPI + KPI chấm điểm × %KPI&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;💰 Lương theo công&lt;div class=&quot;sub&quot;&gt;(LCB+PC+K)×U/T&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;node node-kpi&quot; style=&quot;font-size:10px&quot; data-tip=&quot;&lt;strong&gt;PC theo % doanh số (AO FT)&lt;/strong&gt;DS/Target &amp;lt; 50% → 0 · &amp;lt; 80% → 50% · ≥ 80% → 100% tổng phụ cấp&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📉 PC theo % DS&lt;div class=&quot;sub&quot;&gt;0 / 50% / 100%&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;node node-kpi&quot; style=&quot;font-size:10px&quot; data-tip=&quot;&lt;strong&gt;KPI mốc doanh số&lt;/strong&gt;≤120tr: 500k · ≤180tr: 1tr · ≤290tr: 2tr · &amp;lt;550tr: 3tr · ≥550tr: 5,5tr — nhân %KPI&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🎯 KPI mốc DS&lt;div class=&quot;sub&quot;&gt;× %KPI&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;node node-kpi&quot; style=&quot;font-size:10px&quot; data-tip=&quot;&lt;strong&gt;KPI chấm điểm (không phải AO)&lt;/strong&gt;Mức KPI cố định × %KPI từ bảng đánh giá. Dòng mẫu: MKT FT 2.500.000; HR FT 1.000.000&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📋 KPI chấm điểm&lt;div class=&quot;sub&quot;&gt;Mức × %KPI&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;node node-kpi&quot; style=&quot;font-size:10px&quot; data-tip=&quot;&lt;strong&gt;OT&lt;/strong&gt;LCB × giờ × hệ số / Công chuẩn / 8 · Ngày thường 1,5 · Ngày nghỉ 2 · Ngày lễ 3&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;⏱ OT 150/200/300%&lt;div class=&quot;sub&quot;&gt;LCB/T/8 × giờ&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;arrow-down&quot;&gt;⬇ ⬇ ⬇&lt;/div&gt;
+
+&lt;!-- ═════ TẦNG 4: PHỤ CẤP &amp; THƯỞNG ═════ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#ec4899&quot;&gt;▶ TẦNG 4 — PHỤ CẤP &amp; THƯỞNG&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot;&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Phụ cấp&lt;/strong&gt;Ăn ca, Trang phục, Thuê nhà, Điện thoại, Đi lại / trợ cấp đào tạo / PC trách nhiệm. Mức cố định theo từng NV, tính theo ngày công.&lt;span class=&#x27;src&#x27;&gt;04 cột N–R&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🍱 Phụ cấp 5 khoản&lt;div class=&quot;sub&quot;&gt;Theo công&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Hoa hồng &amp; thưởng doanh số&lt;/strong&gt;HH cá nhân 3% DS Net; thưởng CN đạt chỉ tiêu 1% tổng DS team; thưởng tỉ lệ đạt DS 1% (TP)&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;💹 HH doanh số&lt;div class=&quot;sub&quot;&gt;3% · 1% · 1%&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Thưởng lớp&lt;/strong&gt;Kết thúc lớp (AO, TP): 1% DT cá nhân lớp kết thúc · Lớp nhóm (GVVN FT): giờ × 80k/130k/280k&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🏫 Thưởng lớp&lt;div class=&quot;sub&quot;&gt;KT lớp · lớp nhóm&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;HV điểm cao&lt;/strong&gt;GV: 200k/HV 7.5–8.0, 300k/HV ≥ 8.5 (chia theo tỉ lệ giờ dạy). AO/TP: 100k/HV ≥ 7.5&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🏅 HVĐC&lt;div class=&quot;sub&quot;&gt;200k / 300k / 100k&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Placement Interview / Mocktest / BC-IDP&lt;/strong&gt;PV: 50k/PT (GVNN), 25k/PT (GVVN, Tutor). Mocktest: 4 Speaking hoặc 10 Writing = 1 giờ × rate. BC/IDP: 3% DT đăng ký thi&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🗣 PV · Mocktest · BC/IDP&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Thưởng tuyển dụng (HR)&lt;/strong&gt;TA / Gia sư / GV VN: 100k · GVNN PT: 200k · GVNN FT: 400k · NV PT: 200k · NV FT: 400k · IELTS/SAT/AP/IB/bộ môn: 100k/ứng viên&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🧲 Tuyển dụng&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Round Trip / Severance (GVNN FT)&lt;/strong&gt;Trả cuối chu kỳ HĐ 12 tháng. RT: 100% mức HĐ. SA: 50% cố định + 50% theo đánh giá (Chất lượng giảng dạy ≤20%, Đúng giờ ≤20%, Nghỉ ≤5%, Working Culture ≤5%)&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Cơ cấu ghi &#x27;5 tiêu chí&#x27; nhưng chỉ liệt kê 4.&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-gd&quot;&gt;GĐ&lt;/span&gt;✈️ RT · SA&lt;div class=&quot;sub&quot;&gt;Cuối chu kỳ 12 tháng&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-support&quot; data-tip=&quot;&lt;strong&gt;Tái tục (PT Teacher)&lt;/strong&gt;100.000đ / HV đăng ký học tiếp. Ghi chú trong re-enroll list: &#x27;ko trả, cắt giảm re-enroll từ tháng 1.2019&#x27;.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;Cần xác nhận còn áp dụng hay không.&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-gd&quot;&gt;GĐ&lt;/span&gt;🔁 Tái tục&lt;div class=&quot;sub&quot;&gt;100k/HV&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;arrow-down&quot;&gt;⬇ ⬇ ⬇&lt;/div&gt;
+
+&lt;!-- ═════ TẦNG 5: KHẤU TRỪ ═════ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#f97316&quot;&gt;▶ TẦNG 5 — KHẤU TRỪ, THUẾ &amp; GROSS-UP&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot;&gt;
+    &lt;div class=&quot;node node-collect&quot; data-tip=&quot;&lt;strong&gt;BH bắt buộc (NV đóng)&lt;/strong&gt;BHXH 8% + BHYT 1,5% + BHTN 1% = 10,5% × LCB, khi (LCB ≥ 5.310.000 và công ≥ 14 và HĐ BHXH) hoặc (giờ &amp;gt; 104 và LCB ≥ 2.500.000). GVNN: 9,5%.&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🛡 BHbb 10,5%&lt;/div&gt;
+    &lt;div class=&quot;node node-collect&quot; data-tip=&quot;&lt;strong&gt;Thuế TNCN&lt;/strong&gt;CTV / HĐ &amp;lt;3T: 10% (TN &amp;lt; 5tr → 0). Còn lại lũy tiến: 5% ≤10tr · 10% −0,5tr · 20% −3,5tr · 30% −9,5tr · 35% −14,5tr (ngưỡng 10/30/60/100tr). GTGC 15,5tr + 6,2tr/NPT.&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🧮 Thuế TNCN&lt;/div&gt;
+    &lt;div class=&quot;node node-collect&quot; data-tip=&quot;&lt;strong&gt;Công đoàn&lt;/strong&gt;Tỉ lệ đang để 0% trong file.&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🏷 Công đoàn 0%&lt;/div&gt;
+    &lt;div class=&quot;node node-collect&quot; data-tip=&quot;&lt;strong&gt;Truy thu / hồi tố&lt;/strong&gt;Hồi tố tăng/giảm lương, tạm ứng, đồng phục, BHSK người thân, thuế đã trả thừa; trừ khác (trợ cấp/thưởng Tết, quỹ phòng chống thiên tai).&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;↩️ Truy thu · Hồi tố&lt;/div&gt;
+    &lt;div class=&quot;node node-collect&quot; data-tip=&quot;&lt;strong&gt;Gross-up NET&lt;/strong&gt;GVNN FT và PT Teacher &#x27;nhận NET&#x27;: tìm lương Gross sao cho Gross − Thuế − BH = Net cam kết; thuê nhà chịu thuế tối đa 15% tổng TN.&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🔄 Gross-up NET&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;arrow-down&quot;&gt;⬇&lt;/div&gt;
+
+&lt;!-- ═════ TẦNG 6: ĐẦU RA ═════ --&gt;
+&lt;div class=&quot;section&quot; style=&quot;border-color:#6366f1&quot;&gt;
+  &lt;div class=&quot;section-title&quot; style=&quot;color:#6366f1&quot;&gt;▶ TẦNG 6 — ĐẦU RA&lt;/div&gt;
+  &lt;div class=&quot;node-row&quot;&gt;
+    &lt;div class=&quot;node node-final&quot; style=&quot;min-width:210px;max-width:230px&quot; data-tip=&quot;&lt;strong&gt;04. Bảng lương (tax)&lt;/strong&gt;Bảng lương chính thức (có thuế) theo khối VP / KD&amp;VH / Học vụ → Lương thực nhận, chia Đợt 1 / Đợt 2 (Chuyển khoản / Tiền mặt).&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📁 04. Bảng lương (tax)&lt;div class=&quot;sub&quot;&gt;Theo khối · 2 đợt&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-final&quot; style=&quot;min-width:210px;max-width:230px&quot; data-tip=&quot;&lt;strong&gt;05. Bảng lương ngoài&lt;/strong&gt;Cùng cấu trúc cột với 04, phần trả ngoài (tiền mặt).&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📁 05. Bảng lương ngoài&lt;div class=&quot;sub&quot;&gt;Phần trả tiền mặt&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-output&quot; data-tip=&quot;&lt;strong&gt;Bank + Cash (đợt 1/2/3, cuối năm)&lt;/strong&gt;Danh sách chi hộ: tài khoản, chuyển khoản, tiền mặt trong/ngoài.&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;💵 Bank + Cash&lt;div class=&quot;sub&quot;&gt;Đợt 1 · 2 · 3&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;node node-output&quot; data-tip=&quot;&lt;strong&gt;Payslip&lt;/strong&gt;Phiếu lương cá nhân (song ngữ cho GV nước ngoài).&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;🧾 Payslip&lt;/div&gt;
+    &lt;div class=&quot;node node-output&quot; data-tip=&quot;&lt;strong&gt;DNTT CK / TM&lt;/strong&gt;Đề nghị thanh toán chuyển khoản / tiền mặt.&quot;&gt;&lt;span class=&quot;st st-ok&quot;&gt;✔&lt;/span&gt;📤 DNTT CK · TM&lt;/div&gt;
+    &lt;div class=&quot;node node-output&quot; data-tip=&quot;&lt;strong&gt;Sharing fee — phân bổ chi phí lương theo chi nhánh&lt;/strong&gt;Tổng chi phí (Net + PIT + BH) chia cho các cơ sở theo tỉ lệ giờ dạy. Mẫu 2017 có 7 cơ sở: KN, TT, NTD, TDN, TK, VVT, TC.&lt;br&gt;&lt;span class=&#x27;warn&#x27;&gt;141 ô #REF!; mẫu cũ, cần cập nhật.&lt;/span&gt;&quot;&gt;&lt;span class=&quot;st st-gd&quot;&gt;GĐ&lt;/span&gt;📊 Sharing fee&lt;div class=&quot;sub&quot;&gt;Phân bổ theo giờ&lt;/div&gt;&lt;div class=&quot;count&quot; style=&quot;background:rgba(239,68,68,.35)&quot;&gt;⚠ #REF!&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;&lt;!-- end flow-layers --&gt;
+
+&lt;div class=&quot;stats&quot;&gt;
+  &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;v&quot; style=&quot;color:#60a5fa&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;l&quot;&gt;File nguồn đã khai thác&lt;br&gt;(6 Excel + 1 Word phân tích)&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;v&quot; style=&quot;color:#38bdf8&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;l&quot;&gt;Khối: VP · KD&amp;amp;VH · Học vụ&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;v&quot; style=&quot;color:#a78bfa&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;l&quot;&gt;Nhóm vị trí có cơ cấu lương&lt;br&gt;(10 tổng hợp + PT + Tutor + TA)&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;v&quot; style=&quot;color:#34d399&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;l&quot;&gt;Cơ sở trong bộ lọc EBM&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;v&quot; style=&quot;color:#f87171&quot;&gt;258&lt;/div&gt;&lt;div class=&quot;l&quot;&gt;Ô công thức lỗi #REF!&lt;br&gt;(BCC 115 · sharing 141 · OT list 1 · 04 1)&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;issues&quot;&gt;
+  &lt;h2&gt;⚠ Điểm chưa rõ / mâu thuẫn giữa các nguồn — cần xác nhận&lt;/h2&gt;
+  &lt;table&gt;
+    &lt;tr&gt;&lt;th style=&quot;width:22%&quot;&gt;Chủ đề&lt;/th&gt;&lt;th style=&quot;width:39%&quot;&gt;Nguồn A&lt;/th&gt;&lt;th style=&quot;width:39%&quot;&gt;Nguồn B / Ghi chú&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Phỏng vấn (PT) của GVNN FT&lt;/td&gt;&lt;td&gt;Cơ cấu lương: 50.000đ/PT nếu tổng giờ dạy &amp;gt; giờ tiêu chuẩn&lt;/td&gt;&lt;td&gt;02. BCC: quy đổi 0,25 giờ/PT vào giờ admin (&quot;12PT đã quy đổi&quot; = 3 giờ)&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate OT GV FT&lt;/td&gt;&lt;td&gt;File Word: 300.000đ/giờ, không nhân hệ số&lt;/td&gt;&lt;td&gt;03. OT list: GVNN 300.000 · GVVN 120.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate Mocktest PT Teacher&lt;/td&gt;&lt;td&gt;Cơ cấu: giờ quy đổi × &quot;rate tối thiểu&quot;&lt;/td&gt;&lt;td&gt;Bảng công: rate mặc định 100.000; 1 dòng dùng 450.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Định mức giờ GVNN FT&lt;/td&gt;&lt;td&gt;File Word: 75 / 80 / 100 / 110 / 112 giờ&lt;/td&gt;&lt;td&gt;02. BCC thấy: 70+10 (2 admin = 1 dạy), 100+20 (2:1), 100+12 (1:1), 80 và 100 (không admin)&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate TA&lt;/td&gt;&lt;td&gt;Cơ cấu: 12h observe 0đ · 30h tiếp 30k · sau đó 35k&lt;/td&gt;&lt;td&gt;Bảng công: cột Thử việc / Chính thức; một số người 35k/40k&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate theo sĩ số PT Teacher&lt;/td&gt;&lt;td&gt;Ghi chú: ≤5 HV 450k · 6 HV 558k · 7 HV 581k · ≥8 HV 605k&lt;/td&gt;&lt;td&gt;Không có cột sĩ số trong bảng công → chưa rõ áp dụng chung hay riêng; chốt sĩ số theo buổi/tháng/khóa?&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;% KPI, % OKRs&lt;/td&gt;&lt;td&gt;Nhập tay từ link Google Sheet từng NV&lt;/td&gt;&lt;td&gt;Cách chấm điểm chưa có trong bộ file&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Hoa hồng CTV vận hành&lt;/td&gt;&lt;td&gt;Cơ cấu: tỉ lệ % × (DT vận hành NET − lương Gross GV/Tutor)&lt;/td&gt;&lt;td&gt;Tỉ lệ chưa ghi; dòng mẫu &quot;1% × 500.000.000&quot;&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Severance Allowance&lt;/td&gt;&lt;td&gt;&quot;50% dựa trên 5 tiêu chí&quot;&lt;/td&gt;&lt;td&gt;Chỉ liệt kê 4 tiêu chí (tổng 50%); chưa rõ ai đánh giá, ở đâu&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Nhận diện ca dạy thay gấp / OT ngày nghỉ&lt;/td&gt;&lt;td&gt;File Word: phát sinh OT hoặc rate dạy thay&lt;/td&gt;&lt;td&gt;Không có cột đánh dấu ca dạy thay / ca báo &amp;lt;24h trong EBM hay bảng công&lt;/td&gt;&lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;&lt;!-- end flow-container --&gt;
+&lt;/div&gt;&lt;!-- end canvas --&gt;
+
+&lt;div class=&quot;footer&quot;&gt;Mọi số liệu lấy từ file mẫu trong project GLN JOLO. Nhãn GĐ = suy luận chưa có văn bản xác nhận; nhãn ? = chưa có dữ liệu. Không dùng tên / lương cá nhân.&lt;/div&gt;
+
+&lt;div class=&quot;tooltip&quot; id=&quot;tooltip&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+const tooltip = document.getElementById(&#x27;tooltip&#x27;);
+function place(e){
+  let x = e.clientX + 14, y = e.clientY + 14;
+  const w = tooltip.offsetWidth || 320, h = tooltip.offsetHeight || 160;
+  if (x + w + 10 &gt; window.innerWidth) x = Math.max(8, e.clientX - w - 14);
+  if (y + h + 10 &gt; window.innerHeight) y = Math.max(8, e.clientY - h - 14);
+  tooltip.style.left = x + &#x27;px&#x27;; tooltip.style.top = y + &#x27;px&#x27;;
+}
+document.querySelectorAll(&#x27;[data-tip]&#x27;).forEach(el =&gt; {
+  el.addEventListener(&#x27;mouseenter&#x27;, e =&gt; { tooltip.innerHTML = el.getAttribute(&#x27;data-tip&#x27;); tooltip.style.display = &#x27;block&#x27;; place(e); });
+  el.addEventListener(&#x27;mousemove&#x27;, place);
+  el.addEventListener(&#x27;mouseleave&#x27;, () =&gt; { tooltip.style.display = &#x27;none&#x27;; });
+  el.addEventListener(&#x27;click&#x27;, e =&gt; {
+    document.querySelectorAll(&#x27;.node.active&#x27;).forEach(n =&gt; n.classList.remove(&#x27;active&#x27;));
+    if (el.classList.contains(&#x27;node&#x27;)) el.classList.add(&#x27;active&#x27;);
+    tooltip.innerHTML = el.getAttribute(&#x27;data-tip&#x27;); tooltip.style.display = &#x27;block&#x27;; place(e);
+  });
+});
+document.addEventListener(&#x27;scroll&#x27;, () =&gt; { tooltip.style.display = &#x27;none&#x27;; }, true);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe></div>
+<div class="page" id="p2"><iframe title="Công thức tính lương" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;vi&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+&lt;title&gt;Hệ Thống Tính Lương — GLN JOLO&lt;/title&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;style&gt;
+*{ margin:0; padding:0; box-sizing:border-box; }
+:root{
+  --green:#1a6b3c; --green-mid:#2d8653; --green-light:#e6f4ec; --green-pale:#f0f9f4;
+  --amber:#b45309; --amber-bg:#fef3c7; --text:#111827; --text-2:#374151; --text-3:#6b7280;
+  --border:#e5e7eb; --bg:#f9fafb; --white:#ffffff; --tip-bg:#fffef0; --tip-line:#f0e9c8; --zebra:#fafafa;
+  --radius:10px; --shadow:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.04);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme=&quot;light&quot;]){
+    --green:#6fcf97; --green-mid:#4fb07a; --green-light:#16352a; --green-pale:#132a20;
+    --amber:#fbbf24; --amber-bg:#3a2a0a; --text:#e5e7eb; --text-2:#cbd5e1; --text-3:#94a3b8;
+    --border:#2b3a33; --bg:#0d1512; --white:#141f1a; --tip-bg:#1b2620; --tip-line:#24342b; --zebra:#17221c;
+  }
+}
+:root[data-theme=&quot;dark&quot;]{
+  --green:#6fcf97; --green-mid:#4fb07a; --green-light:#16352a; --green-pale:#132a20;
+  --amber:#fbbf24; --amber-bg:#3a2a0a; --text:#e5e7eb; --text-2:#cbd5e1; --text-3:#94a3b8;
+  --border:#2b3a33; --bg:#0d1512; --white:#141f1a; --tip-bg:#1b2620; --tip-line:#24342b; --zebra:#17221c;
+}
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+body{ font-family:&#x27;Inter&#x27;,system-ui,-apple-system,&#x27;Segoe UI&#x27;,Arial,sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.6; }
+
+header{ background:linear-gradient(135deg,#1a4731 0%,#2d8653 100%); color:#fff; padding:2.5rem 2rem; text-align:center; }
+header h1{ font-size:1.75rem; font-weight:700; letter-spacing:-.01em; margin-bottom:.4rem; }
+header .sub{ opacity:.9; font-size:.95rem; }
+header .meta{ margin-top:.75rem; font-size:.8rem; opacity:.8; }
+
+.container{ max-width:1320px; margin:0 auto; padding:2rem 1.5rem; }
+.section{ background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:1.5rem; box-shadow:var(--shadow); }
+.section-title{ font-size:1.05rem; font-weight:700; color:var(--green); border-bottom:2px solid var(--green-light); padding-bottom:.6rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+.hint{ font-size:.8rem; color:var(--text-3); margin-bottom:1.1rem; }
+
+.status-legend{ display:flex; flex-wrap:wrap; gap:.5rem 1.25rem; font-size:.78rem; color:var(--text-2); margin-top:.75rem; justify-content:center; }
+.b{ display:inline-block; font-size:.68rem; font-weight:700; border-radius:5px; padding:0 .4rem; border:1px solid; vertical-align:middle; }
+.b-ok{ color:#15803d; border-color:#22c55e; background:rgba(34,197,94,.08); }
+.b-gd{ color:#b45309; border-color:#f59e0b; background:rgba(245,158,11,.1); }
+.b-empty{ color:var(--text-3); border-color:#9ca3af; border-style:dashed; }
+header .b{ background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.6); }
+
+/* Thuật ngữ */
+.glossary-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:0 1.5rem; }
+.glossary-table{ width:100%; border-collapse:collapse; font-size:.83rem; }
+.glossary-table th{ background:var(--green); color:#fff; padding:.55rem .85rem; text-align:left; font-weight:600; font-size:.78rem; }
+.glossary-table td{ padding:.5rem .85rem; border-bottom:1px solid var(--border); vertical-align:top; }
+.glossary-table tr:nth-child(even) td{ background:var(--zebra); }
+.glossary-table td:first-child{ font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:700; color:var(--green); white-space:nowrap; width:80px; }
+
+/* Luồng */
+.flow-wrap{ display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:1rem; }
+.flow-card{ background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; }
+.flow-num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:var(--green); color:#fff; font-weight:700; font-size:.8rem; margin-bottom:.6rem; }
+.flow-card h4{ font-size:.88rem; font-weight:700; color:var(--green); margin-bottom:.45rem; }
+.flow-card ul{ padding-left:1rem; }
+.flow-card li{ font-size:.8rem; color:var(--text-2); margin-bottom:.25rem; }
+.formula-tag{ margin-top:.6rem; background:var(--amber-bg); border-left:3px solid var(--amber); padding:.4rem .7rem; border-radius:4px; font-size:.76rem; font-family:ui-monospace,Menlo,Consolas,monospace; color:var(--amber); }
+
+/* Vị trí */
+.pos-group{ font-size:.78rem; font-weight:700; color:var(--text-3); margin:1.1rem 0 .55rem; }
+.pos-group:first-of-type{ margin-top:0; }
+.pos-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem; }
+.pos-card{ background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; cursor:pointer; transition:border-color .2s, box-shadow .2s; position:relative; }
+.pos-card:hover, .pos-card.pinned{ border-color:var(--green); box-shadow:0 6px 20px rgba(26,107,60,.14); }
+.pos-card.empty{ border-style:dashed; }
+.pc-name{ font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:.3rem; padding-right:2.5rem; }
+.pc-badge{ display:inline-block; background:var(--green-light); color:var(--green); border-radius:20px; padding:.15rem .6rem; font-size:.72rem; font-weight:600; margin-bottom:.5rem; }
+.pc-formula{ background:var(--green-pale); border:1px dashed #a7d7bb; border-radius:6px; padding:.4rem .6rem; font-size:.75rem; font-family:ui-monospace,Menlo,Consolas,monospace; color:var(--green); line-height:1.5; }
+.pos-card &gt; .b{ position:absolute; top:.8rem; right:.8rem; }
+
+/* Tooltip */
+#tp-tooltip{ display:none; position:fixed; z-index:9999; pointer-events:none; width:660px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px); overflow:auto;
+  background:var(--tip-bg); border:1.5px solid #d4b84a; border-left:5px solid var(--green); border-radius:10px; padding:1.1rem 1.25rem;
+  box-shadow:2px 6px 24px rgba(0,0,0,.18); }
+#tp-tooltip.pinned{ pointer-events:auto; }
+#tp-tooltip .tp-close{ display:none; position:sticky; top:0; float:right; border:0; background:var(--green); color:#fff; border-radius:6px; padding:.1rem .5rem; font-size:.75rem; cursor:pointer; }
+#tp-tooltip.pinned .tp-close{ display:inline-block; }
+.tp-title{ font-size:.92rem; font-weight:700; color:var(--green); margin-bottom:.6rem; padding-bottom:.4rem; border-bottom:1.5px solid #c6dfc9; line-height:1.4; }
+.tp-formula{ background:rgba(180,83,9,.08); border-left:3px solid var(--amber); padding:.4rem .7rem; border-radius:5px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.79rem; color:var(--amber); font-weight:700; margin-bottom:.75rem; line-height:1.55; }
+.tp-section-label{ font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--green); margin:.75rem 0 .3rem; }
+.tp-soft-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:.5rem; }
+.tp-sub-label{ font-size:.7rem; font-weight:600; color:var(--text-3); margin-bottom:.2rem; padding:.15rem .5rem; background:var(--green-light); border-radius:4px; display:inline-block; }
+#tp-tooltip table{ width:100%; border-collapse:collapse; font-size:.76rem; margin:.25rem 0 .5rem; }
+#tp-tooltip th{ background:var(--green); color:#fff; padding:.3rem .6rem; text-align:left; font-size:.71rem; }
+#tp-tooltip td{ padding:.28rem .6rem; border-bottom:1px solid var(--tip-line); color:var(--text); }
+#tp-tooltip ul{ padding-left:1rem; }
+#tp-tooltip li{ font-size:.77rem; color:var(--text-2); margin-bottom:.2rem; }
+.note{ background:var(--amber-bg); border-left:3px solid var(--amber); padding:.38rem .65rem; border-radius:4px; font-size:.76rem; color:var(--text); margin:.4rem 0; }
+.note strong{ color:var(--amber); }
+.src{ font-size:.7rem; color:var(--text-3); margin-top:.6rem; padding-top:.4rem; border-top:1px dashed var(--tip-line); }
+
+/* Bảng giả định */
+.assume{ width:100%; border-collapse:collapse; font-size:.82rem; }
+.assume th{ background:var(--green); color:#fff; padding:.5rem .8rem; text-align:left; font-size:.76rem; }
+.assume td{ padding:.5rem .8rem; border-bottom:1px solid var(--border); vertical-align:top; }
+.table-scroll{ overflow-x:auto; }
+
+footer{ text-align:center; padding:1.75rem; color:var(--text-3); border-top:1px solid var(--border); font-size:.82rem; margin-top:2rem; background:var(--white); }
+
+@media (max-width:900px){
+  .glossary-wrap{ grid-template-columns:1fr; }
+  .pos-grid{ grid-template-columns:1fr 1fr; }
+}
+@media (max-width:600px){
+  .pos-grid{ grid-template-columns:1fr; }
+  .tp-soft-grid{ grid-template-columns:1fr; }
+  header h1{ font-size:1.35rem; }
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;header&gt;
+  &lt;h1&gt;📊 Hệ Thống Tính Lương — GLN JOLO&lt;/h1&gt;
+  &lt;div class=&quot;sub&quot;&gt;Cơ cấu lương các vị trí năm 2026 &amp;nbsp;|&amp;nbsp; Tài liệu tham khảo nội bộ&lt;/div&gt;
+  &lt;div class=&quot;meta&quot;&gt;Tổng hợp từ: Cơ cấu lương (Tổng hợp, PT Teacher, TA.Tutor) · 04. Bảng lương (tax) · TNCN NET · 02. BCC · 03. OT list · Bảng công PT &amp;amp; TA.Tutor · File Word phân tích&lt;/div&gt;
+  &lt;div class=&quot;status-legend&quot; style=&quot;color:#fff&quot;&gt;
+    &lt;span&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt; Có dữ liệu trong file&lt;/span&gt;
+    &lt;span&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt; Giả định / suy luận — cần xác nhận&lt;/span&gt;
+    &lt;span&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt; Trống — chưa có dữ liệu&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+
+&lt;!-- ══ THUẬT NGỮ ══ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot;&gt;📖 Bảng Thuật Ngữ&lt;/div&gt;
+  &lt;div class=&quot;glossary-wrap&quot;&gt;
+    &lt;table class=&quot;glossary-table&quot;&gt;
+      &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Ký hiệu&lt;/th&gt;&lt;th&gt;Ý nghĩa&lt;/th&gt;&lt;th&gt;Ghi chú / nguồn&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;td&gt;LCB&lt;/td&gt;&lt;td&gt;Lương cơ bản&lt;/td&gt;&lt;td&gt;Cột J, 04. Bảng lương (tax)&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;T&lt;/td&gt;&lt;td&gt;Công tiêu chuẩn tháng&lt;/td&gt;&lt;td&gt;Từ 02. BCC (vd. 23,5 · 24,5 · 26 · 27; PT = 104 giờ)&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;U&lt;/td&gt;&lt;td&gt;Ngày công tính lương&lt;/td&gt;&lt;td&gt;F + P + PH (02. BCC)&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;PC&lt;/td&gt;&lt;td&gt;Tổng phụ cấp&lt;/td&gt;&lt;td&gt;Ăn ca, trang phục, thuê nhà, điện thoại, đi lại/đào tạo/trách nhiệm&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;K&lt;/td&gt;&lt;td&gt;Thưởng KPI theo công&lt;/td&gt;&lt;td&gt;Mức cố định, chia theo công (GV FT, AM)&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;%KPI&lt;/td&gt;&lt;td&gt;% hoàn thành KPI&lt;/td&gt;&lt;td&gt;Nhập tay từ link đánh giá KPI &amp;amp; OKRs&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;DS&lt;/td&gt;&lt;td&gt;Doanh số thực tế tháng&lt;/td&gt;&lt;td&gt;Kế toán gửi hàng tháng&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;HH&lt;/td&gt;&lt;td&gt;Hoa hồng&lt;/td&gt;&lt;td&gt;3% DS Net (AO, TP)&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;EBM&lt;/td&gt;&lt;td&gt;Hệ thống quản lý lớp&lt;/td&gt;&lt;td&gt;ebm.jolo.edu.vn — nguồn giờ dạy, sĩ số&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;table class=&quot;glossary-table&quot;&gt;
+      &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Ký hiệu&lt;/th&gt;&lt;th&gt;Ý nghĩa&lt;/th&gt;&lt;th&gt;Ghi chú / nguồn&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;td&gt;PT*&lt;/td&gt;&lt;td&gt;Placement Interview / Test đầu vào&lt;/td&gt;&lt;td&gt;Thưởng theo số buổi; GVNN FT có thể quy đổi 0,25h/PT&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;HVĐC&lt;/td&gt;&lt;td&gt;Học viên điểm cao&lt;/td&gt;&lt;td&gt;IELTS ≥ 7.5&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;BC/IDP&lt;/td&gt;&lt;td&gt;Đăng ký thi IELTS qua BC / IDP&lt;/td&gt;&lt;td&gt;3% doanh thu đăng ký thi&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;RT · SA&lt;/td&gt;&lt;td&gt;Round Trip · Severance Allowance&lt;/td&gt;&lt;td&gt;GVNN FT, trả cuối chu kỳ 12 tháng&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;GTGC&lt;/td&gt;&lt;td&gt;Giảm trừ gia cảnh&lt;/td&gt;&lt;td&gt;15.500.000 + 6.200.000 × số NPT&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;BHbb&lt;/td&gt;&lt;td&gt;Bảo hiểm bắt buộc (NV đóng)&lt;/td&gt;&lt;td&gt;8% + 1,5% + 1% = 10,5%&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Loại HĐ&lt;/td&gt;&lt;td&gt;BHXH · XĐTH · &amp;lt;3T · CTV · KXĐ&lt;/td&gt;&lt;td&gt;Quyết định cách tính thuế &amp;amp; BH&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;TV&lt;/td&gt;&lt;td&gt;Loại HĐ trong bảng TA.Tutor&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt; Có thể là &quot;thử việc&quot; — được tính thuế như CTV&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;F · P · PH · UP&lt;/td&gt;&lt;td&gt;Ký hiệu chấm công&lt;/td&gt;&lt;td&gt;Làm cả ngày · Phép có lương · Lễ · Nghỉ không lương (có 1/2)&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+  &lt;p class=&quot;hint&quot; style=&quot;margin:.8rem 0 0&quot;&gt;*Trong tài liệu này &quot;PT&quot; ở cột thưởng = Placement Test/Interview; &quot;PT&quot; ở hình thức = Part-time; &quot;PT Teacher&quot; = GV nước ngoài part-time.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- ══ LUỒNG TÍNH LƯƠNG ══ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot;&gt;🔄 Luồng Tính Lương (8 Bước)&lt;/div&gt;
+  &lt;div class=&quot;flow-wrap&quot;&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;1&lt;/div&gt;
+      &lt;h4&gt;Thu thập dữ liệu đầu vào&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;Lớp, GV, sĩ số, giờ dạy từ EBM; đối chiếu Bản cứng&lt;/li&gt;
+        &lt;li&gt;Đăng ký ca, chấm công, phép (01. Bảng phép năm, 02. BCC)&lt;/li&gt;
+        &lt;li&gt;Phiếu đề nghị chấm công bổ sung (03. OT list)&lt;/li&gt;
+        &lt;li&gt;%KPI, %OKRs từ link đánh giá; DS từ Kế toán&lt;/li&gt;
+        &lt;li&gt;DS HV điểm cao, tái tục, số PT, số mocktest&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;2&lt;/div&gt;
+      &lt;h4&gt;Chốt công &amp;amp; giờ&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;U = số F + ½F/2 + P + PH&lt;/li&gt;
+        &lt;li&gt;GV FT: quy đổi giờ dạy + admin + PT + lễ/phép → ngày công quy đổi &amp;amp; giờ OT&lt;/li&gt;
+        &lt;li&gt;PT / TA / Tutor: tổng giờ theo chương trình &amp;amp; cơ sở&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;Ngày công quy đổi = Tổng giờ quy đổi ÷ Giờ cần làm/ngày&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;3&lt;/div&gt;
+      &lt;h4&gt;Lương cố định&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;strong&gt;Theo công:&lt;/strong&gt; (LCB + PC + K) × U ÷ T&lt;/li&gt;
+        &lt;li&gt;&lt;strong&gt;Theo giờ:&lt;/strong&gt; Σ (giờ × rate)&lt;/li&gt;
+        &lt;li&gt;Thử việc (dòng mẫu HR): 85% LCB &lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;Lương = (LCB + PC + K) × U ÷ T&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;4&lt;/div&gt;
+      &lt;h4&gt;Phụ cấp&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;5 khoản, mức cố định theo từng NV, chia theo công&lt;/li&gt;
+        &lt;li&gt;AO FT: phụ thuộc % DS/Target&lt;/li&gt;
+        &lt;li&gt;AO PT: chia theo giờ (104 giờ chuẩn)&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;AO FT: &amp;lt;50% → 0 · &amp;lt;80% → 50% · ≥80% → 100%&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;5&lt;/div&gt;
+      &lt;h4&gt;KPI &amp;amp; OKRs&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;AO / TP: mốc thưởng theo DS × %KPI&lt;/li&gt;
+        &lt;li&gt;VP: mức KPI × %KPI; OKRs theo bảng OKRs&lt;/li&gt;
+        &lt;li&gt;GV FT: KPI cố định theo giờ tiêu chuẩn (chia theo công)&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;KPI = Mức × %KPI ÷ 100&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;6&lt;/div&gt;
+      &lt;h4&gt;Làm thêm giờ (OT)&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;VP / KD: LCB ÷ T ÷ 8 × giờ × 1,5 / 2 / 3&lt;/li&gt;
+        &lt;li&gt;GVNN FT: giờ vượt định mức × 300.000&lt;/li&gt;
+        &lt;li&gt;GVVN FT: giờ vượt 100h × 120.000 (file mẫu)&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;OT = LCB × Giờ × Hệ số ÷ T ÷ 8&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;7&lt;/div&gt;
+      &lt;h4&gt;Thưởng &amp;amp; hoa hồng&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;HH 3% DS, thưởng nhóm 1%, KT lớp 1%, BC/IDP 3%&lt;/li&gt;
+        &lt;li&gt;HVĐC, PT, Mocktest, lớp nhóm, tái tục, tuyển dụng&lt;/li&gt;
+        &lt;li&gt;RT / SA cuối chu kỳ HĐ (GVNN FT)&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;Tổng TN = Lương TT + OT + Σ Thưởng (± kỳ trước)&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flow-card&quot; style=&quot;border-color:var(--green); background:var(--green-pale);&quot;&gt;
+      &lt;div class=&quot;flow-num&quot;&gt;8&lt;/div&gt;
+      &lt;h4&gt;Khấu trừ → Thực nhận&lt;/h4&gt;
+      &lt;ul&gt;
+        &lt;li&gt;BHbb 10,5%, công đoàn 0%, thuế TNCN&lt;/li&gt;
+        &lt;li&gt;Gross-up nếu nhận NET (GVNN FT, PT Teacher)&lt;/li&gt;
+        &lt;li&gt;Truy thu / hồi tố → chia Đợt 1/2(/3), Chuyển khoản / Tiền mặt&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div class=&quot;formula-tag&quot;&gt;Thực nhận = ROUND(TN + Hồi tố − Truy thu − BH − Thuế)&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ══ CÁC VỊ TRÍ ══ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot;&gt;💼 Công Thức Theo Vị Trí&lt;/div&gt;
+  &lt;p class=&quot;hint&quot;&gt;Di chuột (hoặc chạm) vào từng ô để xem chi tiết công thức, bảng mức và nguồn.&lt;/p&gt;
+
+  &lt;div class=&quot;pos-group&quot;&gt;KHỐI VĂN PHÒNG&lt;/div&gt;
+  &lt;div class=&quot;pos-grid&quot;&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;kt&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;1. Kế toán FT&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;KE TOAN FT · Full time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(LCB + PC) × U ÷ T + Thưởng khác&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;hr&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;2. HR FT&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;HR FT · Full time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(LCB + PC) × U ÷ T + KPI × %KPI + Thưởng tuyển dụng&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;mktft&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;3. Marketing FT&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;MARKETING FT · Full time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(LCB + PC) × U ÷ T + KPI × %KPI + OKRs&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;mktpt&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;4. Marketing PT&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;MARKETING PT · Part time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;30.000 × Giờ TT × %KPI + OKRs&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;pos-group&quot;&gt;KHỐI KINH DOANH &amp;amp; VẬN HÀNH&lt;/div&gt;
+  &lt;div class=&quot;pos-grid&quot;&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;tp&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;5. Trưởng phòng TVTS (AM)&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;TRƯỞNG PHÒNG TVTS · Full time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(LCB+PC)×U÷T + KPI + 3%DS + 1%Team + 1%NV đạt + 1%KT lớp + …&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;aoft&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;6. Tư vấn FT (AO FT)&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;TƯ VẤN FT · Full time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(LCB + PC&lt;sub&gt;%DS&lt;/sub&gt;)×U÷T + Mốc&lt;sub&gt;DS&lt;/sub&gt;×%KPI + 3%DS + …&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;aopt&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;7. Tư vấn PT (AO PT)&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;TƯ VẤN PT · Part time&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;2.000.000 ÷ 104 × Giờ TT + PC + Mốc&lt;sub&gt;DS&lt;/sub&gt;×%KPI + 3%DS&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;ctv&quot;&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;8. CTV vận hành / Sale&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;CỘNG TÁC VIÊN · CTV&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;x% × (DT vận hành NET − Lương Gross GV/Tutor)&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;pos-group&quot;&gt;KHỐI HỌC VỤ&lt;/div&gt;
+  &lt;div class=&quot;pos-grid&quot;&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;gvnn&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;9. GV nước ngoài FT&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;GIÁO VIÊN FT 1 · NET&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(Lương + KPI)×Công&lt;sub&gt;QĐ&lt;/sub&gt;÷T + OT×300k + PT + HVĐC + RT/SA&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;gvvn&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;10. GV Việt Nam FT&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;GIÁO VIÊN FT 2 · Gross&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;(LCB + KPI)×U÷T + Σ Lớp nhóm + OT + PT×25k&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;ptt&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;11. PT Teacher&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;GV nước ngoài PT · CTV · NET&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;Σ(Giờ&lt;sub&gt;CT&lt;/sub&gt; × Rate&lt;sub&gt;CT,CS&lt;/sub&gt;) + PV + Mocktest + Tái tục + HVĐC&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;tutor&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;12. Tutor (Gia sư)&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;CTV&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;Σ(Giờ&lt;sub&gt;CT&lt;/sub&gt; × Rate&lt;sub&gt;CT&lt;/sub&gt;) + PT × 25k + Cộng − Trừ&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;ta&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;13. TA (Trợ giảng)&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;CTV&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;12h×0 + 30h×30k + (Giờ còn lại)×35k&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card empty&quot; data-id=&quot;khac&quot;&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;14. TTS · GVNK · chức danh ghép&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;Chưa có cơ cấu&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;— để trống, cần bổ sung —&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;pos-group&quot;&gt;ÁP DỤNG CHUNG&lt;/div&gt;
+  &lt;div class=&quot;pos-grid&quot;&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;tax&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;15. BH, Thuế TNCN &amp;amp; Thực nhận&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;Mọi vị trí&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;TN − BH(10,5%) − TNCN − Truy thu + Hồi tố&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;gross&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;16. Gross-up lương NET&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;GVNN FT · PT Teacher&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;Tìm Gross: Gross − Thuế − BH = Net cam kết&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pos-card&quot; data-id=&quot;bonus&quot;&gt;&lt;span class=&quot;b b-ok&quot;&gt;✔&lt;/span&gt;
+      &lt;div class=&quot;pc-name&quot;&gt;17. Bảng thưởng chung&lt;/div&gt;&lt;div class=&quot;pc-badge&quot;&gt;Tra cứu nhanh&lt;/div&gt;
+      &lt;div class=&quot;pc-formula&quot;&gt;HVĐC · PT · Mocktest · Tuyển dụng · Lớp nhóm&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ══ GIẢ ĐỊNH ══ --&gt;
+&lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section-title&quot;&gt;🧩 Giả Định Đã Dùng &amp;amp; Ô Còn Trống&lt;/div&gt;
+  &lt;div class=&quot;table-scroll&quot;&gt;
+  &lt;table class=&quot;assume&quot;&gt;
+    &lt;tr&gt;&lt;th style=&quot;width:24%&quot;&gt;Hạng mục&lt;/th&gt;&lt;th style=&quot;width:16%&quot;&gt;Trạng thái&lt;/th&gt;&lt;th&gt;Ghi chú&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Thử việc 85% LCB&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Chỉ thấy trong công thức dòng HR FT (J×85% và hồi tố J/T×21 − J×85%/T×21); chưa có quy định văn bản.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Tỉ lệ hoa hồng CTV vận hành&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Cơ cấu ghi &quot;tỉ lệ % nhất định&quot;; dòng mẫu nhập 1% × 500.000.000.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Target chi nhánh cho thưởng nhóm&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Dòng mẫu TP dùng 800.000.000 trong công thức; chưa rõ cố định hay thay đổi theo tháng.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Cách chấm %KPI, %OKRs&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Nằm ở các link Google Sheet ngoài bộ file.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate theo sĩ số (PT Teacher)&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Chỉ là ghi chú trong bảng công; không có cột sĩ số nên không tự động áp được.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate Mocktest PT Teacher&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Cơ cấu: &quot;rate tối thiểu&quot;; bảng công mặc định 100.000; có dòng dùng 450.000.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Tiêu chí thứ 5 của Severance&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Cơ cấu ghi 5 tiêu chí nhưng chỉ liệt kê 4 (tổng 50%).&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Rate dạy thay gấp (&amp;lt;24h)&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;File Word nêu nhu cầu; không có cột/đơn giá trong bảng lương.&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Lương TTS, GVNK, TA&amp;amp;TT, TA SC, CSO&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Có tên trong bảng công nhưng không có dòng trong Cơ cấu lương. TTS HCM mẫu: 25.500đ/giờ.&lt;/td&gt;&lt;/tr&gt;
+  &lt;/table&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;&lt;!-- container --&gt;
+
+&lt;footer&gt;GLN JOLO · Template cơ cấu &amp;amp; công thức lương · Số liệu trích từ file mẫu trong project, không chứa tên hay mức lương cá nhân&lt;/footer&gt;
+
+&lt;!-- ═══════════ DỮ LIỆU TOOLTIP ═══════════ --&gt;
+&lt;div style=&quot;display:none&quot;&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;kt&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🧾 Kế toán FT&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương TT = (LCB + PC + K) × U ÷ T&lt;br&gt;Tổng TN = Lương TT + OT + Thưởng khác&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thành phần&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Khoản&lt;/th&gt;&lt;th&gt;Quy định&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Lương cơ bản&lt;/td&gt;&lt;td&gt;Mức cố định theo từng ứng viên → theo ngày công thực tế&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Phụ cấp&lt;/td&gt;&lt;td&gt;Mức cố định theo từng nhân viên → theo ngày công thực tế&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;KPI / OKRs&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt; Không quy định trong cơ cấu&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Thưởng khác&lt;/td&gt;&lt;td&gt;Nếu có (dòng mẫu: 500.000)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 1; 04. Bảng lương (tax)&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;hr&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;👥 HR FT — Chuyên viên NS TH&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương TT = (LCB + PC + K) × U ÷ T + KPI × %KPI ÷ 100 × U ÷ T&lt;br&gt;+ Thưởng tuyển dụng&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Lương &amp; KPI&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Lương, phụ cấp: mức cố định → theo ngày công&lt;/li&gt;
+      &lt;li&gt;KPI: mức cố định → tính theo điểm KPI tại bảng KPT (dòng mẫu: 1.000.000)&lt;/li&gt;
+      &lt;li&gt;Dòng mẫu đang thử việc: LCB × 85%, có hồi tố chênh lệch &lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thưởng tuyển dụng (theo thời điểm)&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Vị trí tuyển được&lt;/th&gt;&lt;th&gt;Mức&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Trợ giảng / Gia sư / GV Việt Nam&lt;/td&gt;&lt;td&gt;100.000 đ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;GV nước ngoài Part-time&lt;/td&gt;&lt;td&gt;200.000 đ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;GV nước ngoài Full-time&lt;/td&gt;&lt;td&gt;400.000 đ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Nhân viên Part-time&lt;/td&gt;&lt;td&gt;200.000 đ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Nhân viên Full-time&lt;/td&gt;&lt;td&gt;400.000 đ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;IELTS / SAT / AP / IB / các bộ môn&lt;/td&gt;&lt;td&gt;100.000 đ / ứng viên&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 2 (cột G, K, L); 04 dòng HR&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;mktft&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;📣 Marketing FT — Nhân viên PRM&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương TT = (LCB + PC + K) × U ÷ T + KPI × %KPI ÷ 100&lt;br&gt;+ OKRs + OT + Thưởng khác&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Lương, PC: cố định → theo ngày công&lt;/li&gt;
+      &lt;li&gt;KPI: mức cố định × % điểm KPI (bảng KPT). Dòng mẫu: 2.500.000 × 100%&lt;/li&gt;
+      &lt;li&gt;OKRs: theo thực tế đạt được trong tháng trên bảng OKRs (dòng mẫu: 60.000)&lt;/li&gt;
+      &lt;li&gt;OT ngày nghỉ: LCB × giờ × 2 ÷ T ÷ 8 (dòng mẫu có 4,5 giờ workshop ngày thứ 7)&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 3; 04; 03. OT list&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;mktpt&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;📣 Marketing PT&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương = 30.000 × Số giờ thực tế × %KPI ÷ 100 + OKRs&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Lương theo giờ công đi làm thực tế và điểm KPI (KPI đã tính gộp trong lương)&lt;/li&gt;
+      &lt;li&gt;Phụ cấp: mức cố định theo ngày công&lt;/li&gt;
+      &lt;li&gt;OKRs: theo bảng OKRs (dòng mẫu 20.000)&lt;/li&gt;
+      &lt;li&gt;Giờ ghi trực tiếp từng ngày trong 02. BCC; T = 1 nên U = tổng giờ&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Lưu ý:&lt;/strong&gt; HCM có cùng chức danh MKT PT với 30.000đ/giờ; TTS Văn phòng HCM 25.500đ/giờ (chưa có trong cơ cấu).&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 4; Mẫu bảng lương chính › 04&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;tp&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🧭 Trưởng phòng Tư vấn tuyển sinh (AM FT)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương = (LCB + PC) × U ÷ T + KPI + 3% × DS Net&lt;br&gt;+ 1% × DS team (nếu CN ≥ 80% target) + 1% × DS NV đạt target&lt;br&gt;+ 1% × DT lớp kết thúc + PC đào tạo + HVĐC + 3% BC/IDP&lt;/div&gt;
+  &lt;div class=&quot;tp-soft-grid&quot;&gt;
+    &lt;div&gt;&lt;div class=&quot;tp-sub-label&quot;&gt;Hoa hồng &amp; thưởng doanh số&lt;/div&gt;
+      &lt;table&gt;&lt;tr&gt;&lt;th&gt;Khoản&lt;/th&gt;&lt;th&gt;Mức&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;Hoa hồng cá nhân&lt;/td&gt;&lt;td&gt;3% × DS Net&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;Nhóm sale đạt target&lt;/td&gt;&lt;td&gt;1% × tổng DS team&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;NV quản lý&lt;/td&gt;&lt;td&gt;1% × DS NV đạt target&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;div class=&quot;tp-sub-label&quot;&gt;Thưởng khác&lt;/div&gt;
+      &lt;table&gt;&lt;tr&gt;&lt;th&gt;Khoản&lt;/th&gt;&lt;th&gt;Mức&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;Kết thúc lớp&lt;/td&gt;&lt;td&gt;1% DT cá nhân lớp KT&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;PC đào tạo&lt;/td&gt;&lt;td&gt;500.000 / NV mới (năm đầu)&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;HVĐC&lt;/td&gt;&lt;td&gt;100.000 / HV ≥ 7.5&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;BC / IDP&lt;/td&gt;&lt;td&gt;3% DT đăng ký thi&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Điều kiện&lt;/div&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Thưởng nhóm:&lt;/strong&gt; chi nhánh đạt 80% target (dòng mẫu: SUM DS team ÷ 800.000.000 &amp;gt; 80%) &lt;span class=&quot;b b-gd&quot;&gt;GĐ mức target&lt;/span&gt;&lt;br&gt;&lt;strong&gt;Kết thúc lớp:&lt;/strong&gt; Offline DT ≥ 2.000.000; Online DT ≥ 1.500.000&lt;/div&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;KPI:&lt;/strong&gt; cơ cấu để trống cột KPI của TP; dòng mẫu nhập tay 5.500.000 (= mốc ≥ 550 triệu) × 100%.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 5 (F, I, J, M, N, O, P); 04 dòng TP&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;aoft&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;💼 Tư vấn FT (AO FT)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương = (LCB + PC&lt;sub&gt;theo %DS&lt;/sub&gt;) × U ÷ T + Mốc&lt;sub&gt;DS&lt;/sub&gt; × %KPI ÷ 100&lt;br&gt;+ 3% × DS Net + 1% × DT lớp KT + HVĐC + 3% BC/IDP&lt;/div&gt;
+  &lt;div class=&quot;tp-soft-grid&quot;&gt;
+    &lt;div&gt;&lt;div class=&quot;tp-sub-label&quot;&gt;Phụ cấp chuẩn 1.400.000 theo % DS/Target&lt;/div&gt;
+      &lt;table&gt;&lt;tr&gt;&lt;th&gt;% DS&lt;/th&gt;&lt;th&gt;Phụ cấp&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;&amp;lt; 50%&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;50% – &amp;lt; 80%&lt;/td&gt;&lt;td&gt;50% (700.000)&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≥ 80%&lt;/td&gt;&lt;td&gt;100% (1.400.000)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;div class=&quot;tp-sub-label&quot;&gt;Mốc thưởng KPI theo DS thực tế&lt;/div&gt;
+      &lt;table&gt;&lt;tr&gt;&lt;th&gt;Doanh số&lt;/th&gt;&lt;th&gt;Mức&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≤ 120 triệu&lt;/td&gt;&lt;td&gt;500.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≤ 180 triệu&lt;/td&gt;&lt;td&gt;1.000.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≤ 290 triệu&lt;/td&gt;&lt;td&gt;2.000.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;&amp;lt; 550 triệu&lt;/td&gt;&lt;td&gt;3.000.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≥ 550 triệu&lt;/td&gt;&lt;td&gt;5.500.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Hoàn trả cuối năm:&lt;/strong&gt; nhân viên hoàn thành 100% chỉ tiêu năm được hoàn trả phần phụ cấp bị cắt.&lt;br&gt;&lt;strong&gt;Thưởng cuối năm đạt target:&lt;/strong&gt; có trong cơ cấu, chưa có mức &lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Phỏng vấn / HVĐC (dòng mẫu):&lt;/strong&gt; 100.000 × số HV.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 6; 04 (công thức cột L, M, AJ)&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;aopt&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;💼 Tư vấn PT (AO PT)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương = 2.000.000 ÷ 104 × Giờ thực tế + PC&lt;sub&gt;chuẩn 104h&lt;/sub&gt; ÷ 104 × Giờ&lt;br&gt;+ Mốc&lt;sub&gt;DS&lt;/sub&gt; × %KPI + 3% × DS Net + 1% × DT lớp KT + …&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Lương: 2.000.000đ trên 104 giờ tiêu chuẩn → theo giờ công thực tế&lt;/li&gt;
+      &lt;li&gt;Phụ cấp: mức chuẩn cho 104 giờ → theo giờ công thực tế&lt;/li&gt;
+      &lt;li&gt;KPI: cùng bảng mốc DS như AO FT&lt;/li&gt;
+      &lt;li&gt;HH 3%, KT lớp 1%, HVĐC 100k, BC/IDP 3%, thưởng cuối năm&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Lưu ý công thức file:&lt;/strong&gt; điều kiện cắt PC theo % DS trong cột M chỉ áp cho &quot;AO FT&quot;, không áp cho AO PT.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 7; 04 dòng AO PT&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;ctv&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🤝 Cộng tác viên vận hành / Sale&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Hoa hồng = x% × (Doanh thu vận hành NET − Chi phí lương Gross GV/Tutor)&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Lương tính theo % doanh thu nên không cố định&lt;/li&gt;
+      &lt;li&gt;x% &lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt; — cơ cấu chỉ ghi &quot;tỉ lệ % nhất định&quot;&lt;/li&gt;
+      &lt;li&gt;Dòng mẫu (cột Thưởng CN đạt chỉ tiêu/DTVH): 1% × 500.000.000 &lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/li&gt;
+      &lt;li&gt;Thuế: CTV khấu trừ 10% nếu TN ≥ 5.000.000&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 10; 04 dòng CTV vận hành&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;gvnn&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🌏 Giáo viên nước ngoài Full-time (nhận NET)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Thực nhận (Net) = Lương&lt;sub&gt;NET&lt;/sub&gt; × Công&lt;sub&gt;QĐ&lt;/sub&gt; ÷ T + KPI + OT × 300.000&lt;br&gt;+ PT × 50.000 + HVĐC + Mocktest + RT/SA → Gross-up&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Định mức giờ (theo HĐ, mỗi GV khác nhau)&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Giờ dạy&lt;/th&gt;&lt;th&gt;Giờ admin&lt;/th&gt;&lt;th&gt;Quy đổi admin&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;70&lt;/td&gt;&lt;td&gt;10&lt;/td&gt;&lt;td&gt;2 admin = 1 dạy&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;100&lt;/td&gt;&lt;td&gt;20&lt;/td&gt;&lt;td&gt;2 admin = 1 dạy&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;100&lt;/td&gt;&lt;td&gt;12&lt;/td&gt;&lt;td&gt;1 admin = 1 dạy&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;80 / 100&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;Không có admin&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Quy đổi ngày công (02. BCC)&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Giờ cần làm/ngày = (Giờ dạy ĐM + Giờ admin ĐM ÷ tỉ lệ) ÷ T&lt;/li&gt;
+      &lt;li&gt;Giờ lễ + phép = Giờ cần làm/ngày × (số PH + P)&lt;/li&gt;
+      &lt;li&gt;Tổng giờ QĐ = Giờ dạy thực tế (cộng các cơ sở PH/TT/TK/NTĐ/VHSC) + Admin ÷ tỉ lệ + PT × 0,25 + Giờ lễ phép&lt;/li&gt;
+      &lt;li&gt;Ngày công QĐ = Tổng giờ QĐ ÷ Giờ cần làm/ngày; OT = Tổng giờ QĐ − Định mức&lt;/li&gt;
+      &lt;li&gt;Thiếu định mức do trung tâm phân ca không đủ vẫn trả đủ công (file Word)&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thưởng&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Khoản&lt;/th&gt;&lt;th&gt;Quy định&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;KPI&lt;/td&gt;&lt;td&gt;Mức cố định theo HĐ, theo giờ công (dòng mẫu 5.000.000)&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;OT&lt;/td&gt;&lt;td&gt;300.000 / giờ, không nhân hệ số; nghỉ hưởng BHXH có thể quy ra giờ OT&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;HVĐC&lt;/td&gt;&lt;td&gt;200.000 / HV 7.5–8.0 · 300.000 / HV ≥ 8.5 · chia theo tỉ lệ giờ dạy&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Placement Interview&lt;/td&gt;&lt;td&gt;50.000 / PT nếu tổng giờ dạy &amp;gt; giờ tiêu chuẩn&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Mocktest&lt;/td&gt;&lt;td&gt;(Speaking ÷ 4 + Writing ÷ 10) giờ × rate trên HĐ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Round Trip&lt;/td&gt;&lt;td&gt;Cuối chu kỳ 12 tháng · 100% mức HĐ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Severance&lt;/td&gt;&lt;td&gt;Cuối chu kỳ 12 tháng · 50% cố định + 50% đánh giá: Chất lượng ≤20% · Đúng giờ ≤20% · Nghỉ ≤5% · Working Culture ≤5%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Mâu thuẫn:&lt;/strong&gt; 02. BCC quy đổi PT thành 0,25 giờ admin, trong khi cơ cấu trả 50.000/PT. &lt;strong&gt;Rate Mocktest&lt;/strong&gt; &quot;trên HĐ&quot; chưa có số cụ thể.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 8; TNCN NET; 02. BCC (khối EBM/định mức); 03. OT list; File Word&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;gvvn&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🇻🇳 Giáo viên Việt Nam Full-time (Gross)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương = (LCB + KPI) × U ÷ T + Σ(Giờ lớp nhóm × Rate) + OT + PT × 25.000 + HVĐC&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Định mức 100 giờ/tháng, không có giờ admin; ngày nghỉ theo sự phân công&lt;/li&gt;
+      &lt;li&gt;Dòng mẫu: LCB 5.310.000 + KPI 5.000.000&lt;/li&gt;
+      &lt;li&gt;OT: giờ ngoài 100h × 120.000 (03. OT list) &lt;span class=&quot;b b-gd&quot;&gt;khác file Word ghi 300k&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thưởng lớp nhóm&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Điều kiện&lt;/th&gt;&lt;th&gt;Rate / giờ&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Lớp Kid / GE &amp;gt; 5 HV&lt;/td&gt;&lt;td&gt;80.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Lớp IELTS &amp;gt; 5 HV&lt;/td&gt;&lt;td&gt;130.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Lớp IELTS &amp;gt; 8 HV&lt;/td&gt;&lt;td&gt;280.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Ví dụ trong 02. BCC:&lt;/strong&gt; IELTS 7 HV × 12 giờ × 130.000 + IELTS 9 HV × 3 giờ × 280.000; mỗi lớp kèm link EBM làm bằng chứng.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › Cơ cấu lương dòng 9; 02. BCC (Thưởng lớp nhóm); 03. OT list; 04 dòng GV FT 2&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;ptt&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;⏳ PT Teacher — GV nước ngoài part-time (CTV, nhận NET)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Tổng TN trước Gross = Σ(Giờ&lt;sub&gt;CT&lt;/sub&gt; × Rate&lt;sub&gt;CT&lt;/sub&gt;) + PV × 50.000 + Mocktest&lt;br&gt;+ Tái tục × 100.000 + HVĐC + Cộng − Trừ&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Rate / giờ — mỗi GV một khung, theo 5 chương trình&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Chương trình&lt;/th&gt;&lt;th&gt;Khoảng rate trong file&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Children Program&lt;/td&gt;&lt;td&gt;400.000 – 475.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;GE / EFC / TOEFL&lt;/td&gt;&lt;td&gt;400.000 – 550.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;IELTS Intro (4.0–5.0)&lt;/td&gt;&lt;td&gt;400.000 – 600.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Pre-IELTS (5.0–6.5)&lt;/td&gt;&lt;td&gt;400.000 – 581.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;IELTS Intensive (6.5–8.0)&lt;/td&gt;&lt;td&gt;400.000 – 605.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;tp-soft-grid&quot;&gt;
+    &lt;div&gt;&lt;div class=&quot;tp-sub-label&quot;&gt;Rate theo cơ sở (thỏa thuận riêng)&lt;/div&gt;
+      &lt;table&gt;&lt;tr&gt;&lt;th&gt;Cơ sở&lt;/th&gt;&lt;th&gt;Rate NET&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;Q9&lt;/td&gt;&lt;td&gt;470.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;Q3, Tân Cảng&lt;/td&gt;&lt;td&gt;450.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;div class=&quot;tp-sub-label&quot;&gt;Rate theo sĩ số (mọi trình độ)&lt;/div&gt;
+      &lt;table&gt;&lt;tr&gt;&lt;th&gt;Sĩ số&lt;/th&gt;&lt;th&gt;Rate&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≤ 5 HV&lt;/td&gt;&lt;td&gt;450.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;6 HV&lt;/td&gt;&lt;td&gt;558.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;7 HV&lt;/td&gt;&lt;td&gt;581.000&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;≥ 8 HV&lt;/td&gt;&lt;td&gt;605.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thưởng ngoài giờ dạy&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Khoản&lt;/th&gt;&lt;th&gt;Quy định&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Placement Interview&lt;/td&gt;&lt;td&gt;50.000 / PT&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Mocktest&lt;/td&gt;&lt;td&gt;(Speaking ÷ 4 + Writing ÷ 10) giờ × rate tối thiểu&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Tái tục&lt;/td&gt;&lt;td&gt;100.000 / HV đăng ký học tiếp&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;HVĐC&lt;/td&gt;&lt;td&gt;200.000 / HV 7.5–8.0 · 300.000 / HV ≥ 8.5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Thuế &amp;amp; chi trả:&lt;/strong&gt; CTV khấu trừ 10% nếu TN ≥ 5.000.000; nhận NET → gross-up. Chi trả Bank / Cash / Cash ngoài, nhiều đợt. Giờ đối chiếu EBM vs Bản cứng.&lt;br&gt;&lt;strong&gt;Chưa rõ:&lt;/strong&gt; cách kết hợp rate chương trình × cơ sở × sĩ số; sĩ số chốt theo buổi/tháng/khóa &lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;. Re-enroll list ghi &quot;cắt giảm re-enroll từ 1.2019&quot;.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Mẫu bảng lương PT Teacher › Cơ cấu bảng lương, Bảng công (Q3, Q9, Tân Cảng), Bảng lương; re-enroll list&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;tutor&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;📘 Tutor (Gia sư)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Mức gross = Σ(Giờ gia sư&lt;sub&gt;CT&lt;/sub&gt; × Rate&lt;sub&gt;CT&lt;/sub&gt;) + Giờ offer riêng × Rate riêng + PT × 25.000 + Cộng − Trừ&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Rate / giờ phổ biến trong bảng công&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Chương trình&lt;/th&gt;&lt;th&gt;Rate phổ biến&lt;/th&gt;&lt;th&gt;Ngoại lệ thấy trong file&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Gia sư GE + B&lt;/td&gt;&lt;td&gt;66.667&lt;/td&gt;&lt;td&gt;300.000 – 350.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Gia sư Giao tiếp + B+&lt;/td&gt;&lt;td&gt;120.000&lt;/td&gt;&lt;td&gt;200.000 – 400.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Gia sư IELTS 4.5–5.5&lt;/td&gt;&lt;td&gt;120.000&lt;/td&gt;&lt;td&gt;150.000 – 500.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Gia sư IELTS 6+&lt;/td&gt;&lt;td&gt;200.000&lt;/td&gt;&lt;td&gt;150.000 – 550.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Offer riêng&lt;/td&gt;&lt;td&gt;Theo từng người&lt;/td&gt;&lt;td&gt;25.000 – 450.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Thuế:&lt;/strong&gt; CTV / TV khấu trừ 10% nếu TN ≥ 5.000.000; còn lại lũy tiến. Chi trả Đợt 1/2/3 — Bank, Cash trong, Cash ngoài.&lt;br&gt;&lt;strong&gt;Quy mô file mẫu:&lt;/strong&gt; Tràng Thi 45 Tutor · Phạm Hùng 112 Tutor.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Mẫu bảng lương TA.Tutor › Cơ cấu lương dòng 1, Bảng công, Bảng lương&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;ta&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🙋 TA (Trợ giảng)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Lương = Giờ Observe × 0 + Giờ Thử việc × 30.000 + Giờ Chính thức × 35.000&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Giai đoạn&lt;/th&gt;&lt;th&gt;Số giờ&lt;/th&gt;&lt;th&gt;Rate&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Observe&lt;/td&gt;&lt;td&gt;12 giờ đầu&lt;/td&gt;&lt;td&gt;Không áp dụng lương&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Thử việc&lt;/td&gt;&lt;td&gt;30 giờ tiếp theo&lt;/td&gt;&lt;td&gt;30.000 / giờ&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Chính thức&lt;/td&gt;&lt;td&gt;Sau 30 giờ&lt;/td&gt;&lt;td&gt;35.000 / giờ&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Trong bảng công:&lt;/strong&gt; một số người có rate 30.000/40.000 hoặc 35.000/40.000 &lt;span class=&quot;b b-gd&quot;&gt;GĐ thỏa thuận riêng&lt;/span&gt;. Quy mô file mẫu: Tràng Thi 5 TA · Phạm Hùng 50 TA (+ TA SC, TA&amp;amp;TT).&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Mẫu bảng lương TA.Tutor › Cơ cấu lương dòng 2, Bảng công&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;khac&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;❔ Vị trí chưa có cơ cấu lương&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Vị trí&lt;/th&gt;&lt;th&gt;Thấy ở đâu&lt;/th&gt;&lt;th&gt;Dữ liệu có&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;TTS Văn phòng&lt;/td&gt;&lt;td&gt;Mẫu bảng lương chính (HCM)&lt;/td&gt;&lt;td&gt;25.500đ/giờ, HĐ XĐTH&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;GVNK (hát, vẽ)&lt;/td&gt;&lt;td&gt;Bảng công TA.Tutor; sharing&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;TA&amp;amp;TT, TA SC, TT&lt;/td&gt;&lt;td&gt;Bảng công TA.Tutor&lt;/td&gt;&lt;td&gt;Dùng chung bảng rate TA/Tutor &lt;span class=&quot;b b-gd&quot;&gt;GĐ&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;CSO &amp;amp; Tutor&lt;/td&gt;&lt;td&gt;Bảng công TA.Tutor (Phạm Hùng)&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;English teacher FT (HCM)&lt;/td&gt;&lt;td&gt;Mẫu bảng lương chính&lt;/td&gt;&lt;td&gt;(LCB + PC + K) × U ÷ T; dòng mẫu LCB 6tr + K 10tr&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;src&quot;&gt;Cần HR bổ sung quy định để hoàn thiện&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;tax&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🛡 Bảo hiểm, Thuế TNCN &amp; Thực nhận&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Bảo hiểm bắt buộc (NV đóng) trên LCB&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;BHXH&lt;/th&gt;&lt;th&gt;BHYT&lt;/th&gt;&lt;th&gt;BHTN&lt;/th&gt;&lt;th&gt;Tổng&lt;/th&gt;&lt;th&gt;Công đoàn&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;8%&lt;/td&gt;&lt;td&gt;1,5%&lt;/td&gt;&lt;td&gt;1%&lt;/td&gt;&lt;td&gt;10,5%&lt;/td&gt;&lt;td&gt;0%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Điều kiện đóng:&lt;/strong&gt; (LCB ≥ 5.310.000 &lt;em&gt;và&lt;/em&gt; U ≥ 14 &lt;em&gt;và&lt;/em&gt; HĐ BHXH) &lt;em&gt;hoặc&lt;/em&gt; (U &amp;gt; 104 giờ &lt;em&gt;và&lt;/em&gt; LCB ≥ 2.500.000). GVNN: 9,5% (không BHTN).&lt;/div&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thu nhập chịu thuế → tính thuế&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;TNCT = Tổng TN + Hồi tố − Tổng PC + PC đi lại/trách nhiệm − Tiền OT&lt;/li&gt;
+      &lt;li&gt;CTV / HĐ &amp;lt;3T: nếu TNCT &amp;lt; 5.000.000 → 0&lt;/li&gt;
+      &lt;li&gt;TNTT = TNCT − BHbb − GTGC (15.500.000 + 6.200.000 × NPT)&lt;/li&gt;&lt;/ul&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;TNTT&lt;/th&gt;&lt;th&gt;Thuế&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;CTV / &amp;lt;3T&lt;/td&gt;&lt;td&gt;10% × TNTT&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;≤ 10 triệu&lt;/td&gt;&lt;td&gt;5%&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;10 – 30 triệu&lt;/td&gt;&lt;td&gt;10% − 500.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;30 – 60 triệu&lt;/td&gt;&lt;td&gt;20% − 3.500.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;60 – 100 triệu&lt;/td&gt;&lt;td&gt;30% − 9.500.000&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;&amp;gt; 100 triệu&lt;/td&gt;&lt;td&gt;35% − 14.500.000&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;tp-section-label&quot;&gt;Thực nhận&lt;/div&gt;
+  &lt;div class=&quot;note&quot;&gt;Thực nhận = ROUND(Tổng TN sau tăng/giảm kỳ trước + Hồi tố − Truy thu tạm ứng − Truy thu đồng phục/BHSK − (BH + Công đoàn + Thuế + Trừ khác))&lt;br&gt;Chia Đợt 1 / Đợt 2 · Chuyển khoản / Tiền mặt · phần trả ngoài ở 05. Bảng lương ngoài.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: 04. Bảng lương (tax) cột AZ–BU; Bảng lương TA.Tutor&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;gross&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🔄 Gross-up lương NET (sheet TNCN NET)&lt;/div&gt;
+  &lt;div class=&quot;tp-formula&quot;&gt;Tìm Lương Gross sao cho: Net Pay = Tổng TN − Thuế TNCN − BHbb = Thực nhận cam kết&lt;/div&gt;
+  &lt;ul&gt;&lt;li&gt;Tổng lương thực tế = Ngày công TT ÷ Tổng công quy định × Lương Gross&lt;/li&gt;
+      &lt;li&gt;Tổng thu nhập = Thuê nhà + Lương thực tế + Thưởng khác/SA/RT + OT miễn thuế&lt;/li&gt;
+      &lt;li&gt;TNCT = Tổng TN − OT miễn thuế − Thuê nhà + 15% × (Tổng TN − Thuê nhà) (nếu TN ≥ 5tr)&lt;/li&gt;
+      &lt;li&gt;TNTT = TNCT − GTGC − BH (9,5% × mức đóng BH)&lt;/li&gt;
+      &lt;li&gt;Thực nhận (trong) = Net Sal + KPI + OT + Lương giờ + HVĐC + PV + SA/RT; kiểm tra = Net Pay&lt;/li&gt;&lt;/ul&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Áp dụng:&lt;/strong&gt; GVNN FT (TNCN NET) và PT Teacher ghi &quot;NHẬN NET&quot; (Gross up Net Sal).&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Tổng hợp › TNCN NET; PT Teacher › Gross up Net Sal&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;tp-data&quot; data-id=&quot;bonus&quot;&gt;
+  &lt;div class=&quot;tp-title&quot;&gt;🏅 Bảng thưởng chung — tra cứu nhanh&lt;/div&gt;
+  &lt;table&gt;&lt;tr&gt;&lt;th&gt;Khoản&lt;/th&gt;&lt;th&gt;GVNN FT&lt;/th&gt;&lt;th&gt;GVVN FT&lt;/th&gt;&lt;th&gt;PT Teacher&lt;/th&gt;&lt;th&gt;Tutor&lt;/th&gt;&lt;th&gt;AO / TP&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;HV điểm cao&lt;/td&gt;&lt;td&gt;200k (7.5–8.0) · 300k (≥8.5)&lt;/td&gt;&lt;td&gt;Có, chưa ghi mức &lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;200k · 300k&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;100k (≥7.5)&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Placement Interview&lt;/td&gt;&lt;td&gt;50k / PT&lt;/td&gt;&lt;td&gt;25k / PT&lt;/td&gt;&lt;td&gt;50k / PT&lt;/td&gt;&lt;td&gt;25k / PT&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Mocktest&lt;/td&gt;&lt;td&gt;Giờ QĐ × rate HĐ&lt;/td&gt;&lt;td&gt;Có, chưa ghi mức &lt;span class=&quot;b b-empty&quot;&gt;?&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Giờ QĐ × rate tối thiểu&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Lớp nhóm&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;80k / 130k / 280k mỗi giờ&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;BC / IDP&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;3% DT thi&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+  &lt;div class=&quot;note&quot;&gt;&lt;strong&gt;Quy đổi Mocktest:&lt;/strong&gt; 4 bài Speaking = 1 giờ · 10 bài Writing = 1 giờ.&lt;br&gt;&lt;strong&gt;Lớp nhiều GV:&lt;/strong&gt; thưởng HVĐC chia theo tỉ lệ giờ dạy.&lt;/div&gt;
+  &lt;div class=&quot;src&quot;&gt;Nguồn: Cơ cấu lương (Tổng hợp, PT Teacher, TA.Tutor)&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;div id=&quot;tp-tooltip&quot;&gt;&lt;button class=&quot;tp-close&quot; type=&quot;button&quot;&gt;Đóng ✕&lt;/button&gt;&lt;div class=&quot;tp-body&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;script&gt;
+const tip = document.getElementById(&#x27;tp-tooltip&#x27;);
+const tipBody = tip.querySelector(&#x27;.tp-body&#x27;);
+let pinned = null, hideTimer = null;
+
+function positionTip(e){
+  const pad = 12, tw = tip.offsetWidth || 400, th = tip.offsetHeight || 300;
+  let x = e.clientX + 20, y = e.clientY + 14;
+  if (x + tw + pad &gt; window.innerWidth) x = e.clientX - tw - 12;
+  if (y + th + pad &gt; window.innerHeight) y = window.innerHeight - th - pad;
+  tip.style.left = Math.max(pad, x) + &#x27;px&#x27;;
+  tip.style.top = Math.max(pad, y) + &#x27;px&#x27;;
+}
+function fill(id){
+  const src = document.querySelector(&#x27;.tp-data[data-id=&quot;&#x27; + id + &#x27;&quot;]&#x27;);
+  if (!src) return false;
+  tipBody.innerHTML = src.innerHTML; return true;
+}
+function closePinned(){
+  if (pinned) pinned.classList.remove(&#x27;pinned&#x27;);
+  pinned = null; tip.classList.remove(&#x27;pinned&#x27;); tip.style.display = &#x27;none&#x27;;
+}
+document.querySelectorAll(&#x27;.pos-card&#x27;).forEach(card =&gt; {
+  card.addEventListener(&#x27;mouseenter&#x27;, e =&gt; {
+    if (pinned) return;
+    clearTimeout(hideTimer);
+    if (fill(card.dataset.id)) { tip.style.display = &#x27;block&#x27;; positionTip(e); }
+  });
+  card.addEventListener(&#x27;mousemove&#x27;, e =&gt; { if (!pinned) positionTip(e); });
+  card.addEventListener(&#x27;mouseleave&#x27;, () =&gt; { if (!pinned) hideTimer = setTimeout(() =&gt; { tip.style.display = &#x27;none&#x27;; }, 120); });
+  card.addEventListener(&#x27;click&#x27;, e =&gt; {
+    e.stopPropagation();
+    if (pinned === card) { closePinned(); return; }
+    closePinned();
+    if (!fill(card.dataset.id)) return;
+    pinned = card; card.classList.add(&#x27;pinned&#x27;);
+    tip.classList.add(&#x27;pinned&#x27;); tip.style.display = &#x27;block&#x27;;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.max(12, (window.innerWidth - tw) / 2) + &#x27;px&#x27;;
+    tip.style.top = Math.max(12, (window.innerHeight - th) / 2) + &#x27;px&#x27;;
+  });
+});
+tip.querySelector(&#x27;.tp-close&#x27;).addEventListener(&#x27;click&#x27;, closePinned);
+tip.addEventListener(&#x27;click&#x27;, e =&gt; e.stopPropagation());
+document.addEventListener(&#x27;click&#x27;, () =&gt; { if (pinned) closePinned(); });
+document.addEventListener(&#x27;keydown&#x27;, e =&gt; { if (e.key === &#x27;Escape&#x27;) closePinned(); });
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe></div>
+<script>
+document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b===btn));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===btn.dataset.p));
+  try{ history.replaceState(null,'','#'+btn.dataset.p); }catch(e){}
+}));
+if(location.hash==='#p2') document.querySelector('[data-p="p2"]').click();
+</script>
+</body>
+</html>
